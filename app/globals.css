@@ -10,6 +10,12 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Brand Career Passport Colors */
+  --color-brand-yellow: #FFEB43;
+  --color-brand-black: #0A0A0A;
+  --color-brand-muted: #171717;
+  --color-brand-border: #262626;
 }
 
 @media (prefers-color-scheme: dark) {
