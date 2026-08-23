@@ -1,9 +1,9 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 model User {
@@ -15,40 +15,22 @@ model User {
   accounts      Account[]
   sessions      Session[]
   profile       Profile?
-
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @default(now()) @updatedAt
 }
 
-model Profile {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bio       String?
-  headline  String?
-  location  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  educations     Education[]
-  experiences    Experience[]
-  skills         Skill[]
-  projects       Project[]
-  certifications Certification[]
-  achievements   Achievement[]
-}
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -72,21 +54,29 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
-model Education {
-  id           String    @id @default(uuid())
-  profileId    String
-  profile      Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  institution  String
-  degree       String
-  fieldOfStudy String
-  startDate    DateTime
-  endDate      DateTime?
-  description  String?
+model Profile {
+  id             String          @id @default(cuid())
+  userId         String          @unique
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  industry       String?         @default("Information Technology & Software")
+  headline       String?
+  bio            String?
+  phone          String?
+  linkedin       String?
+  github         String?
+  website        String?
+  experiences    Experience[]
+  educations     Education[]
+  skills         Skill[]
+  projects       Project[]
+  achievements   Achievement[]
+  certifications Certification[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @default(now()) @updatedAt
 }
 
 model Experience {
-  id          String    @id @default(uuid())
+  id          String    @id @default(cuid())
   profileId   String
   profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
   company     String
@@ -96,43 +86,64 @@ model Experience {
   endDate     DateTime?
   isCurrent   Boolean   @default(false)
   description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+}
+
+model Education {
+  id           String    @id @default(cuid())
+  profileId    String
+  profile      Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  institution  String
+  degree       String
+  fieldOfStudy String
+  startDate    DateTime
+  endDate      DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
 }
 
 model Skill {
-  id        String  @id @default(uuid())
+  id        String   @id @default(cuid())
   profileId String
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   name      String
-  level     String?
+  level     String   @default("INTERMEDIATE")
+  createdAt DateTime @default(now())
 }
 
 model Project {
-  id          String    @id @default(uuid())
+  id          String   @id @default(cuid())
   profileId   String
-  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   title       String
   description String
   link        String?
-  startDate   DateTime?
-  endDate     DateTime?
-}
-
-model Certification {
-  id            String    @id @default(uuid())
-  profileId     String
-  profile       Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  name          String
-  issuer        String
-  issueDate     DateTime
-  expiryDate    DateTime?
-  credentialUrl String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 }
 
 model Achievement {
-  id          String    @id @default(uuid())
+  id          String    @id @default(cuid())
   profileId   String
   profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
   title       String
+  issuer      String?
+  date        DateTime?
   description String?
-  dateAwarded DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+}
+
+model Certification {
+  id          String    @id @default(cuid())
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  issuer      String
+  issueDate   DateTime
+  expiryDate  DateTime?
+  credentialUrl String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
 }

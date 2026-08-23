@@ -1,59 +1,62 @@
+"use client";
+
 import Link from "next/link";
-import { auth, signOut } from "@/auth";
-import { UserNav } from "./user-nav";
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { LogOut } from "lucide-react";
 
 interface AppHeaderProps {
-  activeNav?: "overview" | "career-profile" | "cv-builder" | "ai-insight";
+  activeNav?: string;
+  userName?: string | null;
 }
 
-export async function AppHeader({ activeNav }: AppHeaderProps) {
-  const session = await auth();
+export function AppHeader({ activeNav, userName }: AppHeaderProps) {
+  const pathname = usePathname();
 
-  const handleSignOut = async () => {
-    "use server";
-    await signOut({ redirectTo: "/" });
-  };
-
-  const navItems = [
-    { id: "overview", label: "Overview", href: "/overview" },
-    { id: "career-profile", label: "Career Profile", href: "/career-profile" },
-    { id: "cv-builder", label: "CV Builder", href: "/cv-builder" },
-    { id: "ai-insight", label: "AI Insight", href: "/ai-insight" },
+  const navs = [
+    { label: "Overview", href: "/dashboard" },
+    { label: "Career Profile", href: "/career-profile" },
+    { label: "CV Builder", href: "/cv-builder" },
+    { label: "AI Insight", href: "/ai-insight" },
   ];
 
   return (
-    <header className="w-full h-16 bg-white border-b border-neutral-200 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link href="/cv-builder" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#FFEB43] text-black font-black flex items-center justify-center text-xs shadow-xs">
-              CP
-            </div>
-            <span className="font-extrabold text-sm tracking-tight text-neutral-900">
-              Career Passport
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-6">
-            {navItems.map((item) => (
+    <header className="bg-white border-b border-neutral-200 px-6 py-3.5 flex items-center justify-between sticky top-0 z-40">
+      <div className="flex items-center gap-8">
+        <Link href="/dashboard" className="font-extrabold text-base tracking-tight text-neutral-900">
+          Career Passport
+        </Link>
+        <nav className="hidden md:flex items-center gap-1">
+          {navs.map((n) => {
+            const isActive = activeNav ? activeNav === n.href.replace("/", "") : pathname === n.href;
+            return (
               <Link
-                key={item.id}
-                href={item.href}
-                className={`text-xs font-semibold transition ${
-                  activeNav === item.id
-                    ? "text-neutral-900 font-bold border-b-2 border-black py-5"
-                    : "text-neutral-500 hover:text-neutral-900"
+                key={n.href}
+                href={n.href}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition ${
+                  isActive
+                    ? "bg-neutral-100 text-neutral-900"
+                    : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50"
                 }`}
               >
-                {item.label}
+                {n.label}
               </Link>
-            ))}
-          </nav>
-        </div>
+            );
+          })}
+        </nav>
+      </div>
 
-        {session?.user && (
-          <UserNav user={session.user} onSignOut={handleSignOut} />
-        )}
+      <div className="flex items-center gap-3">
+        <span className="text-xs font-semibold text-neutral-700 hidden sm:inline">
+          {userName || "User"}
+        </span>
+        <button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          className="p-1.5 text-neutral-400 hover:text-neutral-800 rounded-lg hover:bg-neutral-100 transition cursor-pointer"
+          title="Sign Out"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </header>
   );

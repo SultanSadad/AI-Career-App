@@ -30,3 +30,36 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@media print {
+  /* Sembunyikan semua elemen default saat print */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Tampilkan hanya area lembar CV */
+  #cv-print-area,
+  #cv-print-area * {
+    visibility: visible;
+  }
+
+  /* Posisikan CV pas di sudut kiri atas kertas A4 */
+  #cv-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+  }
+
+  /* Hilangkan header dan footer browser bawaan jika memungkinkan */
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm 12mm 15mm;
+  }
+}

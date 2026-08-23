@@ -1,11 +1,14 @@
 "use client";
 
+import { getIndustryConfig } from "@/lib/industry-config";
+
 interface CVPreviewProps {
   user: {
     name?: string | null;
     email?: string | null;
   };
   profile: {
+    industry?: string | null;
     headline?: string | null;
     bio?: string | null;
     experiences: Array<{
@@ -42,8 +45,8 @@ export function CVPreview({
   user,
   profile,
   selectedSections,
-  targetRole,
 }: CVPreviewProps) {
+  const industryMeta = getIndustryConfig(profile?.industry);
   const hasSections = selectedSections.length > 0;
 
   if (!hasSections) {
@@ -54,130 +57,150 @@ export function CVPreview({
     );
   }
 
+  const renderBullets = (text?: string | null) => {
+    if (!text) return null;
+    const lines = text
+      .split("\n")
+      .map((l) => l.trim().replace(/^[•\-\*]\s*/, ""))
+      .filter(Boolean);
+
+    if (lines.length === 1 && !text.includes("\n")) {
+      return (
+        <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-neutral-800 leading-relaxed">
+          <li>{lines[0]}</li>
+        </ul>
+      );
+    }
+
+    return (
+      <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-neutral-800 leading-relaxed">
+        {lines.map((line, idx) => (
+          <li key={idx}>{line}</li>
+        ))}
+      </ul>
+    );
+  };
+
+  const formatDate = (dateString?: Date | string | null) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  };
+
   return (
-    <div className="w-full bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 md:p-8 text-left text-neutral-900 font-sans text-xs space-y-4 max-h-[700px] overflow-y-auto">
-      {/* Header Info */}
-      <div className="border-b border-neutral-200 pb-3 text-center space-y-1">
-        <h1 className="text-lg font-black tracking-tight text-neutral-900 uppercase">
-          {user.name ?? "Your Name"}
+    <div
+      id="cv-print-area"
+      className="w-full bg-white border border-neutral-200 p-8 md:p-10 text-left text-neutral-900 font-sans text-xs space-y-4 max-h-[720px] overflow-y-auto print:max-h-none print:overflow-visible print:border-none print:p-0"
+    >
+      {/* 1. ATS HEADER */}
+      <div className="text-center space-y-1 pb-2 border-b border-neutral-900">
+        <h1 className="text-2xl font-black tracking-wide text-neutral-900 uppercase">
+          {user.name ?? "CAREER CANDIDATE"}
         </h1>
-        <p className="text-[11px] font-semibold text-neutral-600">
-          {targetRole || profile?.headline || "Software Engineer / Professional"}
+        {profile?.headline && (
+          <p className="text-xs font-bold text-neutral-700">{profile.headline}</p>
+        )}
+        <p className="text-[11px] text-neutral-600 font-medium">
+          {user.email ?? "candidate@example.com"}
         </p>
-        <p className="text-[10px] text-neutral-400">{user.email}</p>
       </div>
 
-      {/* Summary Section */}
+      {/* 2. SUMMARY */}
       {selectedSections.includes("summary") && profile?.bio && (
         <div className="space-y-1">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-100 pb-0.5">
-            Professional Summary
+          <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-300 pb-0.5">
+            PROFESSIONAL SUMMARY
           </h2>
-          <p className="text-[11px] text-neutral-600 leading-relaxed">
-            {profile.bio}
-          </p>
+          <p className="text-[11px] text-neutral-800 leading-relaxed pt-0.5">{profile.bio}</p>
         </div>
       )}
 
-      {/* Experience Section */}
+      {/* 3. EDUCATION */}
+      {selectedSections.includes("education") && profile?.educations && profile.educations.length > 0 && (
+        <div className="space-y-1.5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-300 pb-0.5">
+            EDUCATION
+          </h2>
+          <div className="space-y-1.5 pt-0.5">
+            {profile.educations.map((edu) => (
+              <div key={edu.id} className="flex justify-between items-baseline text-[11px] text-neutral-900">
+                <div>
+                  <span className="font-bold">{edu.institution}</span> — {edu.degree} ({edu.fieldOfStudy})
+                </div>
+                <span className="font-medium text-neutral-600">
+                  {formatDate(edu.startDate)} - {edu.endDate ? formatDate(edu.endDate) : "Present"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 4. EXPERIENCE */}
       {selectedSections.includes("experience") && (
         <div className="space-y-2">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-100 pb-0.5">
-            Work Experience
+          <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-300 pb-0.5">
+            EXPERIENCE
           </h2>
           {profile?.experiences && profile.experiences.length > 0 ? (
-            <div className="space-y-2.5">
+            <div className="space-y-3 pt-0.5">
               {profile.experiences.map((exp) => (
-                <div key={exp.id} className="space-y-0.5">
-                  <div className="flex justify-between items-baseline">
-                    <span className="font-bold text-neutral-800 text-[11px]">
-                      {exp.position} — <span className="font-medium text-neutral-600">{exp.company}</span>
+                <div key={exp.id} className="space-y-1">
+                  <div className="flex justify-between items-baseline font-bold text-[11px] text-neutral-900">
+                    <span>
+                      {exp.position} | <span className="font-semibold text-neutral-700">{exp.company}</span>
                     </span>
-                    <span className="text-[10px] text-neutral-400">
-                      {new Date(exp.startDate).getFullYear()} - {exp.isCurrent ? "Present" : exp.endDate ? new Date(exp.endDate).getFullYear() : ""}
+                    <span className="text-[11px] font-medium text-neutral-600">
+                      {formatDate(exp.startDate)} - {exp.isCurrent ? "Present" : formatDate(exp.endDate)}
                     </span>
                   </div>
-                  {exp.description && (
-                    <p className="text-[10px] text-neutral-500 leading-normal whitespace-pre-line">
-                      {exp.description}
-                    </p>
-                  )}
+                  {renderBullets(exp.description)}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-[10px] text-neutral-400 italic">Belum ada data pengalaman kerja.</p>
+            <p className="text-[11px] text-neutral-400 italic">Belum ada data pengalaman kerja.</p>
           )}
         </div>
       )}
 
-      {/* Projects Section */}
+      {/* 5. DYNAMIC PORTFOLIO / CASE STUDIES / PROJECTS */}
       {selectedSections.includes("projects") && (
         <div className="space-y-2">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-100 pb-0.5">
-            Key Projects
+          <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-300 pb-0.5">
+            {industryMeta.portfolioSectionTitle.toUpperCase()}
           </h2>
           {profile?.projects && profile.projects.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-3 pt-0.5">
               {profile.projects.map((proj) => (
-                <div key={proj.id} className="space-y-0.5">
-                  <div className="flex justify-between items-baseline">
-                    <span className="font-bold text-neutral-800 text-[11px]">{proj.title}</span>
+                <div key={proj.id} className="space-y-1">
+                  <div className="flex justify-between items-baseline font-bold text-[11px] text-neutral-900">
+                    <span>{proj.title}</span>
                     {proj.link && (
-                      <span className="text-[10px] text-blue-600 underline truncate max-w-[150px]">
-                        {proj.link}
-                      </span>
+                      <a href={proj.link} target="_blank" rel="noreferrer" className="text-[10px] text-blue-600 font-normal underline">
+                        View
+                      </a>
                     )}
                   </div>
-                  <p className="text-[10px] text-neutral-500">{proj.description}</p>
+                  {renderBullets(proj.description)}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-[10px] text-neutral-400 italic">Belum ada data proyek.</p>
+            <p className="text-[11px] text-neutral-400 italic">Belum ada data portofolio/studi kasus.</p>
           )}
         </div>
       )}
 
-      {/* Skills Section */}
-      {selectedSections.includes("skills") && (
-        <div className="space-y-1">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-100 pb-0.5">
-            Skills & Competencies
+      {/* 6. SKILLS */}
+      {selectedSections.includes("skills") && profile?.skills && profile.skills.length > 0 && (
+        <div className="space-y-1.5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-300 pb-0.5">
+            KEY COMPETENCIES & SKILLS
           </h2>
-          {profile?.skills && profile.skills.length > 0 ? (
-            <p className="text-[11px] text-neutral-700">
-              {profile.skills.map((s) => s.name).join(" • ")}
-            </p>
-          ) : (
-            <p className="text-[10px] text-neutral-400 italic">Belum ada data skill.</p>
-          )}
-        </div>
-      )}
-
-      {/* Education Section */}
-      {selectedSections.includes("education") && (
-        <div className="space-y-2">
-          <h2 className="text-[11px] font-bold uppercase tracking-wider text-neutral-900 border-b border-neutral-100 pb-0.5">
-            Education
-          </h2>
-          {profile?.educations && profile.educations.length > 0 ? (
-            <div className="space-y-1.5">
-              {profile.educations.map((edu) => (
-                <div key={edu.id} className="flex justify-between items-baseline">
-                  <div>
-                    <span className="font-bold text-[11px] text-neutral-800">{edu.institution}</span>
-                    <p className="text-[10px] text-neutral-500">{edu.degree} in {edu.fieldOfStudy}</p>
-                  </div>
-                  <span className="text-[10px] text-neutral-400">
-                    {new Date(edu.startDate).getFullYear()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-[10px] text-neutral-400 italic">Belum ada riwayat pendidikan.</p>
-          )}
+          <p className="text-[11px] text-neutral-900 leading-relaxed pt-0.5 font-medium">
+            {profile.skills.map((s) => s.name).join(" • ")}
+          </p>
         </div>
       )}
     </div>

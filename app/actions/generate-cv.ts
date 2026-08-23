@@ -1,6 +1,6 @@
 "use server";
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { auth } from "@/auth";
 
 export async function generateTailoredCVAction({
@@ -16,73 +16,116 @@ export async function generateTailoredCVAction({
     return { success: false, error: "Unauthorized" };
   }
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const apiKey =
+    process.env.GEMINI_API_KEY ||
+    process.env.AI_API_KEY ||
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
   if (!apiKey) {
-    console.error("[AI Tailor] ERROR: GEMINI_API_KEY tidak ditemukan di environment variables!");
+    console.error("[AI Tailor] ERROR: GEMINI_API_KEY belum diset di .env.local");
     return {
       success: false,
       error: "GEMINI_API_KEY belum diset di .env.local",
     };
   }
 
-  console.log(`[AI Tailor] Starting generation for role: "${targetRole}"...`);
+  console.log(`[AI Tailor] Starting generation for role: "${targetRole.slice(0, 50)}..."`);
 
   try {
     const ai = new GoogleGenAI({ apiKey });
 
-    const prompt = `
-Anda adalah AI Career Strategist & ATS Optimization Expert.
-Tugas Anda adalah memoles data profil kandidat agar sangat cocok dengan Target Role / Job Description berikut:
+    // Payload ringkas agar response cepat & hemat token
+    const simplifiedProfile = {
+      headline: rawProfile?.headline,
+      bio: rawProfile?.bio,
+      experiences: rawProfile?.experiences?.map((e: any) => ({
+        id: e.id,
+        company: e.company,
+        position: e.position,
+        description: e.description,
+      })),
+      projects: rawProfile?.projects?.map((p: any) => ({
+        id: p.id,
+        title: p.title,
+        description: p.description,
+        link: p.link,
+      })),
+      skills: rawProfile?.skills?.map((s: any) => s.name),
+      educations: rawProfile?.educations?.map((ed: any) => ({
+        institution: ed.institution,
+        degree: ed.degree,
+        fieldOfStudy: ed.fieldOfStudy,
+      })),
+    };
+
+    const prompt = `Anda adalah AI Career Strategist & ATS Optimization Expert profesional di bidang "${rawProfile?.industry || "General / IT"}".
+Tugas Anda: Poles dan sesuaikan data kandidat berikut agar memenuhi kualifikasi Target Role / Job Description dengan menggunakan standar dan terminologi industri "${rawProfile?.industry || "General"}".
+
+BIDANG UTAMA KANDIDAT:
+${rawProfile?.industry || "Information Technology"}
 
 TARGET ROLE & JOB DESCRIPTION:
-"${targetRole || "Software Engineer / Professional"}"
+"${targetRole || "Professional"}"
 
 DATA MENTAH KANDIDAT:
-${JSON.stringify(rawProfile, null, 2)}
+${JSON.stringify(simplifiedProfile)}
 
-INSTRUKSI:
-1. Buat "headline" dan "bio" yang profesional, ringkas, dan relevan dengan target role.
-2. Tulis ulang deskripsi setiap work experience dengan action verbs kuat (misal: "Mengembangkan...", "Mengoptimalkan...", "Merancang...") dan sertakan metrik/dampak jika relevan.
-3. Tulis ulang deskripsi proyek agar menonjolkan arsitektur dan tech stack yang relevan.
-4. Kembalikan HANYA format JSON valid tanpa format markdown \`\`\`json.
-
-Struktur JSON yang WAJIB dihasilkan:
-{
-  "headline": "string",
-  "bio": "string",
-  "experiences": [
-    {
-      "id": "string",
-      "position": "string",
-      "company": "string",
-      "description": "string"
-    }
-  ],
-  "projects": [
-    {
-      "id": "string",
-      "title": "string",
-      "description": "string",
-      "link": "string | null"
-    }
-  ],
-  "skills": ["string"]
-}
-`;
-
+ATURAN:
+1. Buat "headline" dan "bio" yang ringkas, profesional, dan menonjolkan kecocokan dengan target role sesuai standar industri terkait.
+2. Tulis deskripsi experience dan projects dengan action verbs kuat dan metrik/impact yang relevan dengan domain (${rawProfile?.industry || "General"}).
+3. Pertahankan "id" asli pada setiap experience dan project.
+4. Pilih atau rekomendasikan skills yang paling relevan.`;
     const response = await ai.models.generateContent({
       model: "gemini-3.6-flash",
       contents: prompt,
       config: {
+        temperature: 0.2,
         responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            headline: { type: Type.STRING },
+            bio: { type: Type.STRING },
+            experiences: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  id: { type: Type.STRING },
+                  position: { type: Type.STRING },
+                  company: { type: Type.STRING },
+                  description: { type: Type.STRING },
+                },
+                required: ["id", "position", "company", "description"],
+              },
+            },
+            projects: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  id: { type: Type.STRING },
+                  title: { type: Type.STRING },
+                  description: { type: Type.STRING },
+                  link: { type: Type.STRING, nullable: true },
+                },
+                required: ["id", "title", "description"],
+              },
+            },
+            skills: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+            },
+          },
+          required: ["headline", "bio", "experiences", "projects", "skills"],
+        },
       },
     });
 
     const resultText = response.text;
     console.log("[AI Tailor] Success! Response text length:", resultText?.length);
 
-    if (!resultText) throw new Error("Gagal mendapatkan respons AI");
+    if (!resultText) throw new Error("Gagal mendapatkan respons teks dari Gemini API");
 
     return {
       success: true,
@@ -96,8 +139,3 @@ Struktur JSON yang WAJIB dihasilkan:
     };
   }
 }
-
-const apiKey =
-  process.env.GEMINI_API_KEY ||
-  process.env.AI_API_KEY ||
-  process.env.GOOGLE_GENERATIVE_AI_API_KEY;

@@ -56,7 +56,10 @@ export default function MarketingPage() {
 
       {/* 3. TALL PROJECT CARD (CENTERED) */}
       <section className="w-full max-w-md flex justify-center">
-        <div className="w-full bg-white rounded-3xl border border-neutral-200 p-8 min-h-[460px] flex flex-col justify-end items-center text-center shadow-xs hover:border-neutral-400 transition">
+        <div 
+  id="cv-print-area" 
+  className="w-full bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 md:p-8 text-left text-neutral-900 font-sans text-xs space-y-4 max-h-[700px] overflow-y-auto"
+>
           <div className="space-y-3 flex flex-col items-center">
             <h3 className="text-2xl font-bold text-black">Projects</h3>
             <p className="text-sm text-neutral-600 max-w-xs leading-relaxed">
