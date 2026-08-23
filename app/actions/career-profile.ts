@@ -18,6 +18,7 @@ export async function saveExperienceAction(formData: FormData) {
   const id = formData.get("id") as string | null;
   const company = formData.get("company") as string;
   const position = formData.get("position") as string;
+  const employmentType = (formData.get("employmentType") as string) || "Full-time";
   const location = (formData.get("location") as string) || null;
   const startDateStr = formData.get("startDate") as string;
   const endDateStr = (formData.get("endDate") as string) || null;
@@ -27,6 +28,7 @@ export async function saveExperienceAction(formData: FormData) {
   const data = {
     company,
     position,
+    employmentType,
     location,
     startDate: new Date(startDateStr),
     endDate: isCurrent || !endDateStr ? null : new Date(endDateStr),
@@ -44,6 +46,7 @@ export async function saveExperienceAction(formData: FormData) {
 
   revalidatePath("/career-profile");
   revalidatePath("/cv-builder");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -96,6 +99,7 @@ export async function saveEducationAction(formData: FormData) {
   const fieldOfStudy = formData.get("fieldOfStudy") as string;
   const startDateStr = formData.get("startDate") as string;
   const endDateStr = (formData.get("endDate") as string) || null;
+  const description = (formData.get("description") as string) || null;
 
   const data = {
     institution,
@@ -103,6 +107,7 @@ export async function saveEducationAction(formData: FormData) {
     fieldOfStudy,
     startDate: new Date(startDateStr),
     endDate: endDateStr ? new Date(endDateStr) : null,
+    description,
   };
 
   if (id) {
@@ -203,9 +208,7 @@ export async function deleteRecordAction(
   return { success: true };
 }
 
-
-// Tambahkan di app/actions/career-profile.ts
-
+// 7. UPDATE GENERAL SETTINGS (INDUSTRY & HEADLINE)
 export async function updateProfileGeneralAction(formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) throw new Error("Unauthorized");
@@ -216,24 +219,78 @@ export async function updateProfileGeneralAction(formData: FormData) {
   });
   if (!user?.profile) throw new Error("Profile not found");
 
-  const industry = (formData.get("industry") as string) || "Information Technology";
+  const industry = (formData.get("industry") as string) || "Information Technology & Software";
   const headline = (formData.get("headline") as string) || null;
-  const phone = (formData.get("phone") as string) || null;
-  const linkedin = (formData.get("linkedin") as string) || null;
-  const github = (formData.get("github") as string) || null;
 
   await prisma.profile.update({
     where: { id: user.profile.id },
     data: {
       industry,
       headline,
-      phone,
-      linkedin,
-      github,
     },
   });
 
   revalidatePath("/career-profile");
+  revalidatePath("/dashboard");
   revalidatePath("/cv-builder");
   return { success: true };
+}
+
+// 8. UPDATE PERSONAL INFORMATION & CONTACTS
+export async function updatePersonalInfoAction(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const name = formData.get("name") as string;
+  const phone = formData.get("phone") as string;
+  const location = formData.get("location") as string;
+  const linkedinUrl = formData.get("linkedinUrl") as string;
+  const githubUrl = formData.get("githubUrl") as string;
+  const bio = formData.get("bio") as string;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: { profile: true },
+    });
+
+    if (!user) return { success: false, error: "User not found" };
+
+    if (name && name !== user.name) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { name },
+      });
+    }
+
+    await prisma.profile.upsert({
+      where: { userId: user.id },
+      update: {
+        phone,
+        location,
+        linkedinUrl,
+        githubUrl,
+        bio,
+      },
+      create: {
+        userId: user.id,
+        phone,
+        location,
+        linkedinUrl,
+        githubUrl,
+        bio,
+      },
+    });
+
+    revalidatePath("/career-profile");
+    revalidatePath("/dashboard");
+    revalidatePath("/cv-builder");
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("[Update Personal Info Error]:", error);
+    return { success: false, error: error.message || "Gagal menyimpan data." };
+  }
 }

@@ -16,7 +16,7 @@ model User {
   sessions      Session[]
   profile       Profile?
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  updatedAt     DateTime  @updatedAt
 }
 
 model Account {
@@ -55,39 +55,43 @@ model VerificationToken {
 }
 
 model Profile {
-  id             String          @id @default(cuid())
-  userId         String          @unique
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  industry       String?         @default("Information Technology & Software")
-  headline       String?
-  bio            String?
-  phone          String?
-  linkedin       String?
-  github         String?
-  website        String?
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  industry     String?  @default("Information Technology & Software")
+  headline     String?
+  bio          String?  @db.Text
+  phone        String?
+  location     String?
+  linkedinUrl  String?
+  githubUrl    String?
+  portfolioUrl String?
+
   experiences    Experience[]
   educations     Education[]
   skills         Skill[]
   projects       Project[]
-  achievements   Achievement[]
   certifications Certification[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @default(now()) @updatedAt
+  achievements   Achievement[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Experience {
-  id          String    @id @default(cuid())
-  profileId   String
-  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  company     String
-  position    String
-  location    String?
-  startDate   DateTime
-  endDate     DateTime?
-  isCurrent   Boolean   @default(false)
-  description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
+  id             String    @id @default(cuid())
+  profileId      String
+  profile        Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  company        String
+  position       String
+  employmentType String?   @default("Full-time")
+  location       String?
+  startDate      DateTime
+  endDate        DateTime?
+  isCurrent      Boolean   @default(false)
+  description    String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model Education {
@@ -99,8 +103,9 @@ model Education {
   fieldOfStudy String
   startDate    DateTime
   endDate      DateTime?
+  description  String?   @db.Text
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @default(now()) @updatedAt
+  updatedAt    DateTime  @updatedAt
 }
 
 model Skill {
@@ -136,14 +141,14 @@ model Achievement {
 }
 
 model Certification {
-  id          String    @id @default(cuid())
-  profileId   String
-  profile     Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  name        String
-  issuer      String
-  issueDate   DateTime
-  expiryDate  DateTime?
+  id            String    @id @default(cuid())
+  profileId     String
+  profile       Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name          String
+  issuer        String
+  issueDate     DateTime
+  expiryDate    DateTime?
   credentialUrl String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now()) @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
 }

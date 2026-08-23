@@ -9,9 +9,10 @@ import {
   AchievementModal,
   SkillModal,
 } from "./profile-modals";
+import { PersonalInfoCard } from "./personal-info-card";
 import { deleteRecordAction, updateProfileGeneralAction } from "@/app/actions/career-profile";
 import { getIndustryConfig, INDUSTRY_CONFIGS } from "@/lib/industry-config";
-
+import { EmptyState } from "@/components/ui/empty-state";
 interface CareerProfileViewProps {
   profile: any;
 }
@@ -112,8 +113,12 @@ export function CareerProfileView({ profile }: CareerProfileViewProps) {
         </form>
       </div>
 
+      {/* 1. PERSONAL INFORMATION & BIO SECTION */}
+      <PersonalInfoCard user={profile?.user ?? null} profile={profile} />
+
+      {/* 2. CORE RECORDS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* 1. WORK EXPERIENCE */}
+        {/* WORK EXPERIENCE */}
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold text-sm text-neutral-900">
@@ -164,7 +169,7 @@ export function CareerProfileView({ profile }: CareerProfileViewProps) {
           </div>
         </div>
 
-        {/* 2. DYNAMIC PORTFOLIO / CASE STUDIES */}
+        {/* DYNAMIC PORTFOLIO / CASE STUDIES */}
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold text-sm text-neutral-900">
@@ -218,7 +223,7 @@ export function CareerProfileView({ profile }: CareerProfileViewProps) {
           </div>
         </div>
 
-        {/* 3. EDUCATION */}
+        {/* EDUCATION */}
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold text-sm text-neutral-900">
@@ -267,7 +272,7 @@ export function CareerProfileView({ profile }: CareerProfileViewProps) {
           </div>
         </div>
 
-        {/* 4. ACHIEVEMENTS */}
+        {/* ACHIEVEMENTS */}
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 font-bold text-sm text-neutral-900">
@@ -316,7 +321,7 @@ export function CareerProfileView({ profile }: CareerProfileViewProps) {
         </div>
       </div>
 
-      {/* 5. SKILLS */}
+      {/* 3. SKILLS */}
       <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-sm text-neutral-900">

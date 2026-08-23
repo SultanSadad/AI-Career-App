@@ -10,14 +10,14 @@ import {
   addSkillAction,
 } from "@/app/actions/career-profile";
 
-// 1. MODAL EXPERIENCE (DINAMIS)
+// 1. MODAL EXPERIENCE
 export function ExperienceModal({
   isOpen,
   onClose,
   initialData,
-  companyPlaceholder = "e.g. Company Name",
-  positionPlaceholder = "e.g. Role / Position",
-  descPlaceholder = "- Managed daily operations\n- Achieved specific milestones",
+  companyPlaceholder = "e.g. PT Example Tech",
+  positionPlaceholder = "e.g. Frontend Developer",
+  descPlaceholder = "- Spearheaded redesign of core features\n- Improved load speed by 35%",
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -42,59 +42,80 @@ export function ExperienceModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Experience" : "Add Experience"}>
+    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Work Experience" : "Add Work Experience"}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Company / Organization *</label>
-          <input
-            name="company"
-            defaultValue={initialData?.company ?? ""}
-            required
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
-            placeholder={companyPlaceholder}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Company / Organization *</label>
+            <input
+              name="company"
+              defaultValue={initialData?.company ?? ""}
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              placeholder={companyPlaceholder}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Position / Role *</label>
+            <input
+              name="position"
+              defaultValue={initialData?.position ?? ""}
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              placeholder={positionPlaceholder}
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Position / Role *</label>
-          <input
-            name="position"
-            defaultValue={initialData?.position ?? ""}
-            required
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
-            placeholder={positionPlaceholder}
-          />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Employment Type</label>
+            <select
+              name="employmentType"
+              defaultValue={initialData?.employmentType ?? "Full-time"}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 bg-white focus:outline-none focus:border-black"
+            >
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Contract">Contract</option>
+              <option value="Internship">Internship</option>
+              <option value="Freelance">Freelance</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Location</label>
+            <input
+              name="location"
+              defaultValue={initialData?.location ?? ""}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              placeholder="e.g. Batam / Remote"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Location</label>
-          <input
-            name="location"
-            defaultValue={initialData?.location ?? ""}
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
-            placeholder="Jakarta / Batam / Remote"
-          />
-        </div>
+
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1">Start Date *</label>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Start Date *</label>
             <input
               type="date"
               name="startDate"
               defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
               required
-              className="w-full text-xs p-2 rounded-lg border border-neutral-300 focus:outline-neutral-900"
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1">End Date</label>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">End Date</label>
             <input
               type="date"
               name="endDate"
               disabled={isCurrent}
               defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
-              className="w-full text-xs p-2 rounded-lg border border-neutral-300 focus:outline-neutral-900 disabled:bg-neutral-100"
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black disabled:bg-neutral-100"
             />
           </div>
         </div>
+
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -103,32 +124,34 @@ export function ExperienceModal({
             onChange={(e) => setIsCurrent(e.target.checked)}
             className="rounded border-neutral-300"
           />
-          <label htmlFor="isCurrentExp" className="text-xs text-neutral-700 cursor-pointer">
+          <label htmlFor="isCurrentExp" className="text-xs text-neutral-700 font-medium cursor-pointer">
             Currently working in this role
           </label>
         </div>
+
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Description / Bullet Points</label>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Key Achievements & Responsibilities</label>
           <textarea
             name="description"
             defaultValue={initialData?.description ?? ""}
             rows={4}
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             placeholder={descPlaceholder}
           />
         </div>
+
         <div className="flex justify-end gap-2 pt-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs rounded-lg border border-neutral-300 font-medium hover:bg-neutral-50"
+            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 text-xs rounded-lg bg-black text-white font-medium hover:bg-neutral-800 disabled:opacity-50"
+            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
           >
             {loading ? "Saving..." : "Save Experience"}
           </button>
@@ -138,7 +161,125 @@ export function ExperienceModal({
   );
 }
 
-// 2. MODAL PORTOFOLIO / CASE STUDY / PROJECT (DINAMIS)
+// 2. MODAL EDUCATION
+export function EducationModal({
+  isOpen,
+  onClose,
+  initialData,
+  institutionPlaceholder = "e.g. Politeknik Negeri Batam",
+  majorPlaceholder = "e.g. Teknik Informatika",
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  initialData?: any;
+  institutionPlaceholder?: string;
+  majorPlaceholder?: string;
+}) {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    if (initialData?.id) formData.set("id", initialData.id);
+
+    await saveEducationAction(formData);
+    setLoading(false);
+    onClose();
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Education" : "Add Education"}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Institution *</label>
+          <input
+            name="institution"
+            defaultValue={initialData?.institution ?? ""}
+            required
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            placeholder={institutionPlaceholder}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Degree *</label>
+            <input
+              name="degree"
+              defaultValue={initialData?.degree ?? ""}
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              placeholder="Diploma 3 (D3) / Bachelor's (S1)"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Field of Study / Major *</label>
+            <input
+              name="fieldOfStudy"
+              defaultValue={initialData?.fieldOfStudy ?? ""}
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              placeholder={majorPlaceholder}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Start Date *</label>
+            <input
+              type="date"
+              name="startDate"
+              defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">End Date / Expected</label>
+            <input
+              type="date"
+              name="endDate"
+              defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Description / GPA / Activities</label>
+          <textarea
+            name="description"
+            defaultValue={initialData?.description ?? ""}
+            rows={3}
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            placeholder="e.g. GPA: 3.85/4.00, Head of Informatics Club..."
+          />
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
+          >
+            {loading ? "Saving..." : "Save Education"}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+// 3. MODAL PROJECT
 export function ProjectModal({
   isOpen,
   onClose,
@@ -185,7 +326,7 @@ export function ProjectModal({
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Link Bukti / Portofolio / Dokumen</label>
+          <label className="block text-xs font-semibold text-neutral-700 mb-1">Link Bukti / Portofolio</label>
           <input
             name="link"
             defaultValue={initialData?.link ?? ""}
@@ -225,109 +366,7 @@ export function ProjectModal({
   );
 }
 
-// 3. MODAL EDUCATION (DINAMIS)
-export function EducationModal({
-  isOpen,
-  onClose,
-  initialData,
-  institutionPlaceholder = "e.g. Universitas / Politeknik",
-  majorPlaceholder = "e.g. Ilmu Hukum / Akuntansi / Teknik Informatika",
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  initialData?: any;
-  institutionPlaceholder?: string;
-  majorPlaceholder?: string;
-}) {
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    if (initialData?.id) formData.set("id", initialData.id);
-
-    await saveEducationAction(formData);
-    setLoading(false);
-    onClose();
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Education" : "Add Education"}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Institution *</label>
-          <input
-            name="institution"
-            defaultValue={initialData?.institution ?? ""}
-            required
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
-            placeholder={institutionPlaceholder}
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Degree *</label>
-          <input
-            name="degree"
-            defaultValue={initialData?.degree ?? ""}
-            required
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
-            placeholder="Bachelor's Degree (S1) / Associate Degree (D3)"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Field of Study / Major *</label>
-          <input
-            name="fieldOfStudy"
-            defaultValue={initialData?.fieldOfStudy ?? ""}
-            required
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
-            placeholder={majorPlaceholder}
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1">Start Date *</label>
-            <input
-              type="date"
-              name="startDate"
-              defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
-              required
-              className="w-full text-xs p-2 rounded-lg border border-neutral-300 focus:outline-neutral-900"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1">End Date / Expected</label>
-            <input
-              type="date"
-              name="endDate"
-              defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
-              className="w-full text-xs p-2 rounded-lg border border-neutral-300 focus:outline-neutral-900"
-            />
-          </div>
-        </div>
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs rounded-lg border border-neutral-300 font-medium hover:bg-neutral-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-xs rounded-lg bg-black text-white font-medium hover:bg-neutral-800 disabled:opacity-50"
-          >
-            {loading ? "Saving..." : "Save Education"}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-// 4. MODAL ACHIEVEMENT (DINAMIS)
+// 4. MODAL ACHIEVEMENT
 export function AchievementModal({
   isOpen,
   onClose,
@@ -416,7 +455,7 @@ export function AchievementModal({
   );
 }
 
-// 5. MODAL SKILL (DINAMIS)
+// 5. MODAL SKILL
 export function SkillModal({
   isOpen,
   onClose,
