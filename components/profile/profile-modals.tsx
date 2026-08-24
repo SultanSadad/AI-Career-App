@@ -7,6 +7,7 @@ import {
   saveProjectAction,
   saveEducationAction,
   saveAchievementAction,
+  saveCertificationAction,
   addSkillAction,
 } from "@/app/actions/career-profile";
 
@@ -287,6 +288,8 @@ export function ProjectModal({
   sectionTitle = "Portfolio Entry",
   titleLabel = "Title *",
   titlePlaceholder = "e.g. Case / Project Title",
+  technologiesLabel = "Tech Stack / Key Focus",
+  technologiesPlaceholder = "e.g. Next.js, PostgreSQL, Tailwind",
   linkPlaceholder = "https://...",
   descPlaceholder = "- Description of deliverables\n- Key impact and results",
 }: {
@@ -296,6 +299,8 @@ export function ProjectModal({
   sectionTitle?: string;
   titleLabel?: string;
   titlePlaceholder?: string;
+  technologiesLabel?: string;
+  technologiesPlaceholder?: string;
   linkPlaceholder?: string;
   descPlaceholder?: string;
 }) {
@@ -316,49 +321,94 @@ export function ProjectModal({
     <Modal isOpen={isOpen} onClose={onClose} title={initialData ? `Edit ${sectionTitle}` : `Add ${sectionTitle}`}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">{titleLabel}</label>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">{titleLabel}</label>
           <input
             name="title"
             defaultValue={initialData?.title ?? ""}
             required
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             placeholder={titlePlaceholder}
           />
         </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Start Date</label>
+            <input
+              type="date"
+              name="startDate"
+              defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">End Date / Completed</label>
+            <input
+              type="date"
+              name="endDate"
+              defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+        </div>
+
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Link Bukti / Portofolio</label>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">{technologiesLabel}</label>
           <input
-            name="link"
-            defaultValue={initialData?.link ?? ""}
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
-            placeholder={linkPlaceholder}
+            name="technologies"
+            defaultValue={initialData?.technologies ?? ""}
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            placeholder={technologiesPlaceholder}
           />
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Live Demo / Proof URL</label>
+            <input
+              name="link"
+              defaultValue={initialData?.link ?? ""}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              placeholder={linkPlaceholder}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">GitHub / Document Link</label>
+            <input
+              name="githubUrl"
+              defaultValue={initialData?.githubUrl ?? ""}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              placeholder="https://github.com/... or Google Drive"
+            />
+          </div>
+        </div>
+
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Description & Impact *</label>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Description & Key Impact *</label>
           <textarea
             name="description"
             defaultValue={initialData?.description ?? ""}
             required
             rows={4}
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             placeholder={descPlaceholder}
           />
         </div>
+
         <div className="flex justify-end gap-2 pt-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs rounded-lg border border-neutral-300 font-medium hover:bg-neutral-50"
+            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 text-xs rounded-lg bg-black text-white font-medium hover:bg-neutral-800 disabled:opacity-50"
+            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
           >
-            {loading ? "Saving..." : "Save Entry"}
+            {loading ? "Saving..." : "Save Project"}
           </button>
         </div>
       </form>
@@ -366,7 +416,108 @@ export function ProjectModal({
   );
 }
 
-// 4. MODAL ACHIEVEMENT
+// 4. MODAL CERTIFICATION
+export function CertificationModal({
+  isOpen,
+  onClose,
+  initialData,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  initialData?: any;
+}) {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    if (initialData?.id) formData.set("id", initialData.id);
+
+    await saveCertificationAction(formData);
+    setLoading(false);
+    onClose();
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Certification" : "Add Certification"}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Certification Name *</label>
+          <input
+            name="name"
+            defaultValue={initialData?.name ?? ""}
+            required
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            placeholder="e.g. AWS Certified Solutions Architect / Brevet Pajak AB"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Issuing Organization *</label>
+          <input
+            name="issuer"
+            defaultValue={initialData?.issuer ?? ""}
+            required
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            placeholder="e.g. Amazon Web Services / Ikatan Akuntan Indonesia"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Issue Date *</label>
+            <input
+              type="date"
+              name="issueDate"
+              defaultValue={initialData?.issueDate ? new Date(initialData.issueDate).toISOString().split("T")[0] : ""}
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Expiry Date</label>
+            <input
+              type="date"
+              name="expiryDate"
+              defaultValue={initialData?.expiryDate ? new Date(initialData.expiryDate).toISOString().split("T")[0] : ""}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Credential Link / Verification URL</label>
+          <input
+            name="credentialUrl"
+            defaultValue={initialData?.credentialUrl ?? ""}
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            placeholder="https://www.credly.com/badges/..."
+          />
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
+          >
+            {loading ? "Saving..." : "Save Certification"}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+// 5. MODAL ACHIEVEMENT
 export function AchievementModal({
   isOpen,
   onClose,
@@ -397,40 +548,40 @@ export function AchievementModal({
     <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Achievement" : "Add Achievement"}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Title / Award Name *</label>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Title / Award Name *</label>
           <input
             name="title"
             defaultValue={initialData?.title ?? ""}
             required
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             placeholder={titlePlaceholder}
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Issuer / Organization</label>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Issuer / Organization</label>
           <input
             name="issuer"
             defaultValue={initialData?.issuer ?? ""}
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             placeholder={issuerPlaceholder}
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Date</label>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Date</label>
           <input
             type="date"
             name="date"
             defaultValue={initialData?.date ? new Date(initialData.date).toISOString().split("T")[0] : ""}
-            className="w-full text-xs p-2 rounded-lg border border-neutral-300 focus:outline-neutral-900"
+            className="w-full text-xs p-2 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Description</label>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Description</label>
           <textarea
             name="description"
             defaultValue={initialData?.description ?? ""}
             rows={3}
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             placeholder="Deskripsi pencapaian atau rekognisi..."
           />
         </div>
@@ -438,14 +589,14 @@ export function AchievementModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs rounded-lg border border-neutral-300 font-medium hover:bg-neutral-50"
+            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 text-xs rounded-lg bg-black text-white font-medium hover:bg-neutral-800 disabled:opacity-50"
+            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
           >
             {loading ? "Saving..." : "Save Achievement"}
           </button>
@@ -455,7 +606,7 @@ export function AchievementModal({
   );
 }
 
-// 5. MODAL SKILL
+// 6. MODAL SKILL
 export function SkillModal({
   isOpen,
   onClose,
@@ -480,19 +631,19 @@ export function SkillModal({
     <Modal isOpen={isOpen} onClose={onClose} title="Add Skill">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Skill Name *</label>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Skill Name *</label>
           <input
             name="name"
             required
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900"
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             placeholder={skillPlaceholder}
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-neutral-700 mb-1">Proficiency Level</label>
+          <label className="block text-xs font-bold text-neutral-700 mb-1">Proficiency Level</label>
           <select
             name="level"
-            className="w-full text-xs p-2.5 rounded-lg border border-neutral-300 focus:outline-neutral-900 bg-white"
+            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black bg-white"
           >
             <option value="BEGINNER">Beginner</option>
             <option value="INTERMEDIATE">Intermediate</option>
@@ -503,14 +654,14 @@ export function SkillModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs rounded-lg border border-neutral-300 font-medium hover:bg-neutral-50"
+            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2 text-xs rounded-lg bg-black text-white font-medium hover:bg-neutral-800 disabled:opacity-50"
+            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
           >
             {loading ? "Adding..." : "Add Skill"}
           </button>

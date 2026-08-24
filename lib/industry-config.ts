@@ -1,135 +1,136 @@
-export interface IndustryConfig {
-  id: string;
+export interface IndustryMetadata {
   name: string;
   badge: string;
   headlinePlaceholder: string;
-  // Experience Placeholders
   companyPlaceholder: string;
   positionPlaceholder: string;
   experienceDescPlaceholder: string;
-  // Portfolio / Case Study Placeholders
+  institutionPlaceholder: string;
+  majorPlaceholder: string;
   portfolioSectionTitle: string;
   portfolioTitleLabel: string;
   portfolioTitlePlaceholder: string;
   portfolioLinkPlaceholder: string;
   portfolioDescPlaceholder: string;
-  // Education Placeholders
-  institutionPlaceholder: string;
-  majorPlaceholder: string;
-  // Achievement Placeholders
+  technologiesLabel: string;
+  technologiesPlaceholder: string;
   achievementTitlePlaceholder: string;
   issuerPlaceholder: string;
-  // Skill Placeholders
   skillPlaceholder: string;
-  skillSuggestions: string[];
+  suggestedSkills: string[];
 }
 
-export const INDUSTRY_CONFIGS: Record<string, IndustryConfig> = {
+export const INDUSTRY_CONFIGS: Record<string, IndustryMetadata> = {
   "Information Technology & Software": {
-    id: "it",
     name: "Information Technology & Software",
-    badge: "Tech & Software",
-    headlinePlaceholder: "Full Stack Developer | Next.js, TypeScript & PostgreSQL",
-    companyPlaceholder: "e.g. PT Telekomunikasi / Tech Startup",
-    positionPlaceholder: "e.g. Full Stack Web Developer Intern",
-    experienceDescPlaceholder: "- Developed responsive web modules using Next.js & TypeScript\n- Optimized database query response times by 35%",
-    portfolioSectionTitle: "Key Projects & Repositories",
-    portfolioTitleLabel: "Project Title *",
-    portfolioTitlePlaceholder: "e.g. AI-Powered Career Platform",
-    portfolioLinkPlaceholder: "https://github.com/...",
-    portfolioDescPlaceholder: "- Built full-stack system using Next.js 16 and Prisma ORM\n- Integrated Gemini AI structured schema API",
-    institutionPlaceholder: "e.g. Politeknik Negeri Batam / ITB",
-    majorPlaceholder: "e.g. Teknik Informatika / Sistem Informasi",
-    achievementTitlePlaceholder: "e.g. Juara 1 Hackathon Web Dev Nasional",
-    issuerPlaceholder: "e.g. Kominfo / Asosiasi Startup",
-    skillPlaceholder: "e.g. TypeScript, Next.js, PostgreSQL, Docker",
-    skillSuggestions: ["TypeScript", "Next.js", "React", "PostgreSQL", "Prisma ORM", "Docker", "Git/GitHub", "REST APIs", "Tailwind CSS"],
+    badge: "Tech & Software Engineering",
+    headlinePlaceholder: "e.g. Full-Stack Web Developer | Next.js, Laravel & Cloud Enthusiast",
+    companyPlaceholder: "e.g. PT Infineon Technologies / Tokopedia",
+    positionPlaceholder: "e.g. Software Engineer / Full-Stack Developer",
+    experienceDescPlaceholder: "- Architected high-performance REST APIs handling 50k+ daily calls\n- Reduced database query latency by 40% with Prisma index tuning",
+    institutionPlaceholder: "e.g. Politeknik Negeri Batam",
+    majorPlaceholder: "e.g. D3 Teknik Informatika / S1 Ilmu Komputer",
+    portfolioSectionTitle: "Technical Projects & Open Source",
+    portfolioTitleLabel: "Project Name *",
+    portfolioTitlePlaceholder: "e.g. Career Passport — AI Career Assistant",
+    portfolioLinkPlaceholder: "https://careerpassport.dev",
+    portfolioDescPlaceholder: "- Built full-stack SaaS using Next.js 16 and PostgreSQL\n- Integrated Gemini 3.6 Flash for automated resume tailoring",
+    technologiesLabel: "Tech Stack / Tools",
+    technologiesPlaceholder: "e.g. Next.js, TypeScript, PostgreSQL, Tailwind CSS, Docker",
+    achievementTitlePlaceholder: "e.g. 1st Place — National Hackathon 2025",
+    issuerPlaceholder: "e.g. Kementerian Kominfo / Google",
+    skillPlaceholder: "e.g. TypeScript, React, Docker, CI/CD",
+    suggestedSkills: ["TypeScript", "Next.js", "React", "Node.js", "PostgreSQL", "Laravel", "Tailwind CSS", "Docker", "Git", "REST APIs"],
   },
-  "Hukum & Legal Compliance": {
-    id: "legal",
-    name: "Hukum & Legal Compliance",
-    badge: "Law & Corporate Governance",
-    headlinePlaceholder: "Corporate Legal Associate | Contract Drafting & Compliance Audit",
-    companyPlaceholder: "e.g. Kantor Advokat ABC / Legal Dept PT XYZ",
-    positionPlaceholder: "e.g. Junior Legal Associate / Corporate Counsel",
-    experienceDescPlaceholder: "- Managed corporate statutory filings and governmental permits\n- Reviewed 40+ vendor commercial contracts ensuring 100% regulatory compliance",
-    portfolioSectionTitle: "Legal Cases, Audits & Regulatory Drafting",
-    portfolioTitleLabel: "Case Study / Drafting Title *",
-    portfolioTitlePlaceholder: "e.g. Legal Due Diligence & Vendor Contract Restructuring",
-    portfolioLinkPlaceholder: "https://drive.google.com/... (Dokumen Publik / Redacted)",
-    portfolioDescPlaceholder: "- Drafted standard operational contracts and compliance checklists\n- Formulated comprehensive risk mitigation review for cross-border transactions",
-    institutionPlaceholder: "e.g. Universitas Indonesia / UGM",
-    majorPlaceholder: "e.g. Ilmu Hukum / Hukum Bisnis",
-    achievementTitlePlaceholder: "e.g. Juara 1 National Moot Court Competition",
-    issuerPlaceholder: "e.g. PERADI / Kementerian Hukum dan HAM",
-    skillPlaceholder: "e.g. Contract Drafting, Due Diligence, Corporate Governance",
-    skillSuggestions: ["Contract Drafting", "Legal Research", "Corporate Governance", "Due Diligence", "Regulatory Compliance", "Dispute Resolution"],
+  "Law & Legal Services": {
+    name: "Law & Legal Services",
+    badge: "Legal & Corporate Compliance",
+    headlinePlaceholder: "e.g. Corporate Legal Specialist | Contract Drafting & Due Diligence",
+    companyPlaceholder: "e.g. Assegaf Hamzah & Partners / Corporate In-House",
+    positionPlaceholder: "e.g. Legal Counsel / Associate Lawyer",
+    experienceDescPlaceholder: "- Drafted and reviewed 120+ cross-border vendor agreements\n- Led legal audit and compliance for merger acquisition transactions",
+    institutionPlaceholder: "e.g. Universitas Indonesia",
+    majorPlaceholder: "e.g. S1 Ilmu Hukum / Hukum Bisnis",
+    portfolioSectionTitle: "Legal Case Studies & Advisory Matters",
+    portfolioTitleLabel: "Case / Transaction Title *",
+    portfolioTitlePlaceholder: "e.g. Cross-Border Joint Venture Regulatory Compliance",
+    portfolioLinkPlaceholder: "https://drive.google.com/... (Sanitized Case Summary)",
+    portfolioDescPlaceholder: "- Structured multi-jurisdictional joint venture agreement valued at $2.5M\n- Ensured zero compliance infractions under Indonesian antitrust laws",
+    technologiesLabel: "Legal Domains / Key Focus",
+    technologiesPlaceholder: "e.g. Corporate Law, Contract Drafting, Due Diligence, M&A",
+    achievementTitlePlaceholder: "e.g. Best Oralist — National Moot Court Competition",
+    issuerPlaceholder: "e.g. Mahkamah Agung RI / PERADI",
+    skillPlaceholder: "e.g. Contract Drafting, Legal Due Diligence, Compliance",
+    suggestedSkills: ["Contract Drafting", "Legal Due Diligence", "Corporate Compliance", "Litigasi", "Legal Research", "Risk Management", "Hukum Ketenagakerjaan", "Arbitrase"],
   },
-  "Akuntansi, Keuangan & Perbankan": {
-    id: "accounting",
-    name: "Akuntansi, Keuangan & Perbankan",
-    badge: "Finance & Accounting",
-    headlinePlaceholder: "Financial Analyst | Auditing, Tax Planning & Financial Modeling",
-    companyPlaceholder: "e.g. KAP Deloitte / Bank Mandiri / PT Finance",
-    positionPlaceholder: "e.g. Junior Auditor / Financial Analyst",
-    experienceDescPlaceholder: "- Prepared monthly consolidated financial statements and cash flow projections\n- Handled tax compliance (PPh 21/23/25, PPN) and statutory audit reporting",
-    portfolioSectionTitle: "Financial Models, Audits & Feasibility Studies",
-    portfolioTitleLabel: "Financial Model / Case Title *",
-    portfolioTitlePlaceholder: "e.g. 5-Year Capital Budgeting & Cashflow Forecasting Model",
-    portfolioLinkPlaceholder: "https://... (Portofolio Spreadsheet / Laporan)",
-    portfolioDescPlaceholder: "- Formulated comprehensive financial forecasting models reducing variance by 12%\n- Evaluated ROI and NPV projections for business expansion proposals",
-    institutionPlaceholder: "e.g. Universitas Diponegoro / Polibatam",
-    majorPlaceholder: "e.g. Akuntansi / Manajemen Keuangan",
-    achievementTitlePlaceholder: "e.g. Top 3 National Financial Modeling Competition",
-    issuerPlaceholder: "e.g. Ikatan Akuntan Indonesia (IAI) / CFA Society",
-    skillPlaceholder: "e.g. Financial Modeling, Tax Planning, SAP ERP",
-    skillSuggestions: ["Financial Modeling", "Corporate Tax Planning", "Financial Reporting", "Budgeting & Forecasting", "Auditing", "Advanced Excel"],
+  "Accounting & Finance": {
+    name: "Accounting & Finance",
+    badge: "Finance, Audit & Accounting",
+    headlinePlaceholder: "e.g. Senior Financial Analyst | Valuation, Tax Planning & SAP",
+    companyPlaceholder: "e.g. PwC Indonesia / Bank Mandiri",
+    positionPlaceholder: "e.g. Financial Analyst / Auditor",
+    experienceDescPlaceholder: "- Prepared consolidated financial statements compliant with PSAK/IFRS\n- Designed 3-statement financial models optimizing working capital by 18%",
+    institutionPlaceholder: "e.g. Universitas Gadjah Mada",
+    majorPlaceholder: "e.g. S1 Akuntansi / Manajemen Keuangan",
+    portfolioSectionTitle: "Financial Models, Audits & Valuations",
+    portfolioTitleLabel: "Model / Report Name *",
+    portfolioTitlePlaceholder: "e.g. DCF Valuation & 5-Year Financial Forecast Model",
+    portfolioLinkPlaceholder: "https://drive.google.com/... (Sanitized Model Sheet)",
+    portfolioDescPlaceholder: "- Built dynamic discounted cash flow (DCF) model for series-A fundraising\n- Conducted sensitivity analysis across inflation and margin scenarios",
+    technologiesLabel: "Financial Tools & Standards",
+    technologiesPlaceholder: "e.g. Financial Modeling, SAP ERP, Power BI, PSAK/IFRS, Excel VBA",
+    achievementTitlePlaceholder: "e.g. Top 3 Finalist — CFA Institute Research Challenge",
+    issuerPlaceholder: "e.g. CFA Society Indonesia / IAI",
+    skillPlaceholder: "e.g. Financial Modeling, SAP, IFRS, Tax Planning",
+    suggestedSkills: ["Financial Modeling", "PSAK / IFRS", "Tax Planning (Brevet A/B)", "SAP ERP", "Audit & Assurance", "Power BI", "Excel Advanced / VBA", "Cash Flow Forecasting"],
   },
-  "Manajemen Bisnis & Pemasaran Digital": {
-    id: "business",
-    name: "Manajemen Bisnis & Pemasaran Digital",
-    badge: "Business & Marketing",
-    headlinePlaceholder: "Digital Marketing & Growth Strategist | Market Expansion & ROI Lead",
-    companyPlaceholder: "e.g. Agency XYZ / PT Consumer Goods",
-    positionPlaceholder: "e.g. Marketing Specialist / Business Development Associate",
-    experienceDescPlaceholder: "- Spearheaded digital campaign initiatives resulting in 40% lead growth\n- Monitored weekly CAC, LTV, and conversion performance metrics",
-    portfolioSectionTitle: "Business Cases, GTM Strategies & Campaigns",
-    portfolioTitleLabel: "Campaign / Business Case Title *",
-    portfolioTitlePlaceholder: "e.g. Q4 Omni-channel Product Launch & GTM Strategy",
-    portfolioLinkPlaceholder: "https://... (Pitch Deck / Canva / Laporan)",
-    portfolioDescPlaceholder: "- Led end-to-end digital acquisition campaign with ROAS of 4.5x\n- Executed market research to optimize product pricing structure",
-    institutionPlaceholder: "e.g. Universitas Brawijaya / Prasetiya Mulya",
-    majorPlaceholder: "e.g. Manajemen Bisnis / Ilmu Komunikasi",
-    achievementTitlePlaceholder: "e.g. Best Business Plan Award 2026",
-    issuerPlaceholder: "e.g. Himpunan Pengusaha Muda / Kampus",
-    skillPlaceholder: "e.g. GTM Strategy, SEO/SEM, Google Analytics",
-    skillSuggestions: ["Go-To-Market Strategy", "Performance Marketing", "SEO / SEM", "Market Research", "CRM Analytics", "Brand Strategy"],
+  "Business, Marketing & Sales": {
+    name: "Business, Marketing & Sales",
+    badge: "Growth Marketing & Business Strategy",
+    headlinePlaceholder: "e.g. Growth Marketing Lead | Performance Marketing & Revenue Ops",
+    companyPlaceholder: "e.g. Shopee / Grab Indonesia",
+    positionPlaceholder: "e.g. Product Marketing Manager / Growth Specialist",
+    experienceDescPlaceholder: "- Scaled paid customer acquisition by 140% while reducing CAC by 22%\n- Managed quarterly marketing budget of IDR 850M across Meta & Google Ads",
+    institutionPlaceholder: "e.g. Universitas Padjadjaran",
+    majorPlaceholder: "e.g. S1 Manajemen Bisnis / Ilmu Komunikasi",
+    portfolioSectionTitle: "Marketing Campaigns & Growth Initiatives",
+    portfolioTitleLabel: "Campaign / Initiative Name *",
+    portfolioTitlePlaceholder: "e.g. Q4 Omni-channel Product Launch & Rebranding",
+    portfolioLinkPlaceholder: "https://behance.net/... / Campaign Deck URL",
+    portfolioDescPlaceholder: "- Executed 360-degree marketing launch generating 45,000 organic signups\n- Coordinated influencer activations reaching 2.4M target audience impressions",
+    technologiesLabel: "Growth Stack & Platforms",
+    technologiesPlaceholder: "e.g. Google Ads, Meta Ads Manager, HubSpot, GA4, Mixpanel",
+    achievementTitlePlaceholder: "e.g. Marketer of the Year — Internal Corporate Award",
+    issuerPlaceholder: "e.g. Indonesia Marketing Association",
+    skillPlaceholder: "e.g. Google Ads, SEO, HubSpot, Data Analytics",
+    suggestedSkills: ["Performance Marketing", "SEO / SEM", "Google Analytics (GA4)", "Meta Ads Manager", "HubSpot CRM", "Market Research", "Brand Strategy", "Content Marketing"],
   },
-  "Multimedia, Desain Kreatif & UI/UX": {
-    id: "creative",
-    name: "Multimedia, Desain Kreatif & UI/UX",
-    badge: "Design & Creative Media",
-    headlinePlaceholder: "Product & UI/UX Designer | Visual Storyteller & Design Systems",
-    companyPlaceholder: "e.g. Creative Studio / Software House",
-    positionPlaceholder: "e.g. UI/UX Designer / Multimedia Specialist",
-    experienceDescPlaceholder: "- Conducted usability testing and user interview sessions with 25+ participants\n- Built design system and maintained 100+ responsive Figma components",
-    portfolioSectionTitle: "Creative Portfolios & Design Case Studies",
-    portfolioTitleLabel: "Portfolio / Case Study Title *",
-    portfolioTitlePlaceholder: "e.g. Mobile Banking App Redesign & Design System",
-    portfolioLinkPlaceholder: "https://behance.net/... atau https://figma.com/...",
-    portfolioDescPlaceholder: "- Redesigned customer checkout journey improving completion rate by 24%\n- Produced interactive prototypes and validated design decisions with stakeholders",
-    institutionPlaceholder: "e.g. Institut Seni Indonesia / Polibatam",
-    majorPlaceholder: "e.g. Desain Komunikasi Visual (DKV) / Multimedia",
-    achievementTitlePlaceholder: "e.g. Winner of UX Design Challenge",
-    issuerPlaceholder: "e.g. Dribbble Community / Asosiasi Desainer Grafis",
-    skillPlaceholder: "e.g. Figma, Adobe Illustrator, Design Systems",
-    skillSuggestions: ["Figma", "Design Systems", "User Research", "Adobe Illustrator", "Motion Design", "Visual Prototyping"],
+  "Creative, UI/UX & Design": {
+    name: "Creative, UI/UX & Design",
+    badge: "Product Design & Creative Direction",
+    headlinePlaceholder: "e.g. Senior UI/UX Designer | Design Systems & User Research",
+    companyPlaceholder: "e.g. Traveloka / Gojek Design Studio",
+    positionPlaceholder: "e.g. Product Designer / UI/UX Designer",
+    experienceDescPlaceholder: "- Designed enterprise design system used by 40+ cross-functional engineers\n- Conducted usability tests with 60+ participants to improve checkout completion by 28%",
+    institutionPlaceholder: "e.g. Institut Teknologi Bandung",
+    majorPlaceholder: "e.g. S1 Desain Komunikasi Visual (DKV)",
+    portfolioSectionTitle: "Design Case Studies & Prototypes",
+    portfolioTitleLabel: "Case Study Title *",
+    portfolioTitlePlaceholder: "e.g. End-to-End Fintech Mobile Banking Redesign",
+    portfolioLinkPlaceholder: "https://figma.com/@username / Behance Link",
+    portfolioDescPlaceholder: "- Revamped user onboarding flow cutting abandonment rate from 45% to 18%\n- Created high-fidelity clickable prototype in Figma with micro-interactions",
+    technologiesLabel: "Design Stack & Methods",
+    technologiesPlaceholder: "e.g. Figma, FigJam, Protopie, Design System, Usability Testing",
+    achievementTitlePlaceholder: "e.g. Best UI/UX Design — Indigo Telkom Design Sprint",
+    issuerPlaceholder: "e.g. Telkom Indonesia / UX Indonesia",
+    skillPlaceholder: "e.g. Figma, Design Systems, User Research, Wireframing",
+    suggestedSkills: ["Figma", "Design Systems", "User Research", "Wireframing & Prototyping", "Usability Testing", "Information Architecture", "UI Interaction Design", "Adobe Creative Suite"],
   },
 };
 
-export function getIndustryConfig(industryName?: string | null): IndustryConfig {
-  if (industryName && INDUSTRY_CONFIGS[industryName]) {
-    return INDUSTRY_CONFIGS[industryName];
+export function getIndustryConfig(industryName?: string | null): IndustryMetadata {
+  if (!industryName || !INDUSTRY_CONFIGS[industryName]) {
+    return INDUSTRY_CONFIGS["Information Technology & Software"];
   }
-  return INDUSTRY_CONFIGS["Information Technology & Software"];
+  return INDUSTRY_CONFIGS[industryName];
 }

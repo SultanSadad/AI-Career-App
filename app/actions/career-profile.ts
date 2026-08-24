@@ -4,7 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-// 1. SAVE EXPERIENCE (CREATE / UPDATE)
+// 1. SAVE EXPERIENCE
 export async function saveExperienceAction(formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) throw new Error("Unauthorized");
@@ -50,7 +50,8 @@ export async function saveExperienceAction(formData: FormData) {
   return { success: true };
 }
 
-// 2. SAVE PROJECT (CREATE / UPDATE)
+// 2. SAVE PROJECT
+// SAVE PROJECT (CREATE / UPDATE)
 export async function saveProjectAction(formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) throw new Error("Unauthorized");
@@ -64,25 +65,37 @@ export async function saveProjectAction(formData: FormData) {
   const id = formData.get("id") as string | null;
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
+  const technologies = (formData.get("technologies") as string) || null;
   const link = (formData.get("link") as string) || null;
+  const githubUrl = (formData.get("githubUrl") as string) || null;
+  const startDateStr = (formData.get("startDate") as string) || null;
+  const endDateStr = (formData.get("endDate") as string) || null;
+
+  const data = {
+    title,
+    description,
+    technologies,
+    link,
+    githubUrl,
+    startDate: startDateStr ? new Date(startDateStr) : null,
+    endDate: endDateStr ? new Date(endDateStr) : null,
+  };
 
   if (id) {
-    await prisma.project.update({
-      where: { id },
-      data: { title, description, link },
-    });
+    await prisma.project.update({ where: { id }, data });
   } else {
     await prisma.project.create({
-      data: { profileId: user.profile.id, title, description, link },
+      data: { ...data, profileId: user.profile.id },
     });
   }
 
   revalidatePath("/career-profile");
   revalidatePath("/cv-builder");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
-// 3. SAVE EDUCATION (CREATE / UPDATE)
+// 3. SAVE EDUCATION
 export async function saveEducationAction(formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) throw new Error("Unauthorized");
@@ -120,10 +133,11 @@ export async function saveEducationAction(formData: FormData) {
 
   revalidatePath("/career-profile");
   revalidatePath("/cv-builder");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
-// 4. SAVE ACHIEVEMENT (CREATE / UPDATE)
+// 4. SAVE ACHIEVEMENT
 export async function saveAchievementAction(formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) throw new Error("Unauthorized");
@@ -157,10 +171,51 @@ export async function saveAchievementAction(formData: FormData) {
 
   revalidatePath("/career-profile");
   revalidatePath("/cv-builder");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
-// 5. ADD SKILL
+// 5. SAVE CERTIFICATION
+export async function saveCertificationAction(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.email) throw new Error("Unauthorized");
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    include: { profile: true },
+  });
+  if (!user?.profile) throw new Error("Profile not found");
+
+  const id = formData.get("id") as string | null;
+  const name = formData.get("name") as string;
+  const issuer = formData.get("issuer") as string;
+  const issueDateStr = formData.get("issueDate") as string;
+  const expiryDateStr = (formData.get("expiryDate") as string) || null;
+  const credentialUrl = (formData.get("credentialUrl") as string) || null;
+
+  const data = {
+    name,
+    issuer,
+    issueDate: new Date(issueDateStr),
+    expiryDate: expiryDateStr ? new Date(expiryDateStr) : null,
+    credentialUrl,
+  };
+
+  if (id) {
+    await prisma.certification.update({ where: { id }, data });
+  } else {
+    await prisma.certification.create({
+      data: { ...data, profileId: user.profile.id },
+    });
+  }
+
+  revalidatePath("/career-profile");
+  revalidatePath("/cv-builder");
+  revalidatePath("/dashboard");
+  return { success: true };
+}
+
+// 6. ADD SKILL
 export async function addSkillAction(formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) throw new Error("Unauthorized");
@@ -186,12 +241,13 @@ export async function addSkillAction(formData: FormData) {
 
   revalidatePath("/career-profile");
   revalidatePath("/cv-builder");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
-// 6. DELETE RECORD
+// 7. DELETE RECORD
 export async function deleteRecordAction(
-  type: "exp" | "proj" | "edu" | "skill" | "achieve",
+  type: "exp" | "proj" | "edu" | "skill" | "achieve" | "cert",
   id: string
 ) {
   const session = await auth();
@@ -202,13 +258,15 @@ export async function deleteRecordAction(
   if (type === "edu") await prisma.education.delete({ where: { id } });
   if (type === "skill") await prisma.skill.delete({ where: { id } });
   if (type === "achieve") await prisma.achievement.delete({ where: { id } });
+  if (type === "cert") await prisma.certification.delete({ where: { id } });
 
   revalidatePath("/career-profile");
   revalidatePath("/cv-builder");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
-// 7. UPDATE GENERAL SETTINGS (INDUSTRY & HEADLINE)
+// 8. UPDATE GENERAL SETTINGS (INDUSTRY & HEADLINE)
 export async function updateProfileGeneralAction(formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) throw new Error("Unauthorized");
@@ -236,7 +294,7 @@ export async function updateProfileGeneralAction(formData: FormData) {
   return { success: true };
 }
 
-// 8. UPDATE PERSONAL INFORMATION & CONTACTS
+// 9. UPDATE PERSONAL INFORMATION & CONTACTS
 export async function updatePersonalInfoAction(formData: FormData) {
   const session = await auth();
   if (!session?.user?.email) {
