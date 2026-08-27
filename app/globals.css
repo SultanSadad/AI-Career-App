@@ -1,65 +1,120 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+    color-scheme: light;
+  }
+
+  * {
+    border-color: #e5e5e5;
+  }
+
+  html,
+  body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #171717 !important;
+    min-height: 100vh;
+  }
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  
-  /* Brand Career Passport Colors */
   --color-brand-yellow: #FFEB43;
   --color-brand-black: #0A0A0A;
   --color-brand-muted: #171717;
   --color-brand-border: #262626;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ====================================================
+   A4 SHEET (PREVIEW WEB - PURE WHITE)
+   ==================================================== */
+.a4-page-sheet {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 16mm 14mm;
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  box-sizing: border-box;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
+/* ====================================================
+   PRINT ENGINE (EXPORT PDF - 100% PURE WHITE ALL PAGES)
+   ==================================================== */
 @media print {
-  /* Sembunyikan semua elemen default saat print */
-  body * {
-    visibility: hidden;
-  }
-
-  /* Tampilkan hanya area lembar CV */
-  #cv-print-area,
-  #cv-print-area * {
-    visibility: visible;
-  }
-
-  /* Posisikan CV pas di sudut kiri atas kertas A4 */
-  #cv-print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    background: white !important;
-  }
-
-  /* Hilangkan header dan footer browser bawaan jika memungkinkan */
   @page {
     size: A4 portrait;
-    margin: 12mm 15mm 12mm 15mm;
+    margin: 14mm 14mm !important;
+  }
+
+  /* Reset total seluruh background menjadi putih murni */
+  *,
+  *::before,
+  *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  html,
+  body,
+  main,
+  #__next,
+  #resume-preview-container,
+  #resume-printable-area,
+  #resume-preview-content,
+  .a4-page-sheet {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Sembunyikan elemen UI website */
+  .no-print,
+  nav,
+  aside,
+  button,
+  footer {
+    display: none !important;
+  }
+
+  header:not(.resume-header) {
+    display: none !important;
+  }
+
+  #resume-preview-container,
+  #resume-printable-area {
+    display: block !important;
+    position: static !important;
+    transform: none !important;
+  }
+
+  .resume-header {
+    display: block !important;
+    visibility: visible !important;
+    break-after: avoid-page !important;
+    page-break-after: avoid !important;
+  }
+
+  /* Kontrol pemotongan halaman agar rapi */
+  .break-inside-avoid,
+  section,
+  .resume-entry {
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
+  }
+
+  h1, h2, h3, h4 {
+    break-after: avoid-page !important;
+    page-break-after: avoid !important;
   }
 }

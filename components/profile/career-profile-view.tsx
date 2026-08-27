@@ -482,9 +482,9 @@ export function CareerProfileView({ profile }: CareerProfileViewProps) {
             <span>Recommended for your domain (Click to quick-add):</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {industryMeta.suggestedSkills.map((sk) => {
-              const alreadyAdded = existingSkillNames.has(sk.toLowerCase());
-              return (
+            {(industryMeta?.suggestedSkills || []).map((sk) => {
+  const alreadyAdded = existingSkillNames.has(sk.toLowerCase());
+  return (
                 <button
                   key={sk}
                   disabled={alreadyAdded || quickSkillLoading === sk}
