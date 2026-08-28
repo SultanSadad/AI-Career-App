@@ -1,672 +1,975 @@
 "use client";
 
-import { useState } from "react";
-import { Modal } from "@/components/ui/modal";
+import { useState, useEffect } from "react";
+import { Sparkles, X } from "lucide-react";
+import { AiExperienceModal } from "@/components/profile/ai-experience-modal";
 import {
   saveExperienceAction,
   saveProjectAction,
   saveEducationAction,
-  saveAchievementAction,
   saveCertificationAction,
+  saveAchievementAction,
   addSkillAction,
 } from "@/app/actions/career-profile";
 
-// 1. MODAL EXPERIENCE
+/* =========================================================================
+   1. WORK EXPERIENCE MODAL (WITH AI ENHANCE)
+   ========================================================================= */
 export function ExperienceModal({
   isOpen,
   onClose,
   initialData,
-  companyPlaceholder = "e.g. PT Example Tech",
-  positionPlaceholder = "e.g. Frontend Developer",
-  descPlaceholder = "- Spearheaded redesign of core features\n- Improved load speed by 35%",
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  initialData?: any;
-  companyPlaceholder?: string;
-  positionPlaceholder?: string;
-  descPlaceholder?: string;
-}) {
-  const [loading, setLoading] = useState(false);
-  const [isCurrent, setIsCurrent] = useState(initialData?.isCurrent ?? false);
+  companyPlaceholder = "e.g., PT Teknologi Digital Nusantara",
+  positionPlaceholder = "e.g., Lead Full-Stack Engineer",
+  descPlaceholder = "Outline your core achievements and impact...",
+}: any) {
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [position, setPosition] = useState("");
+  const [company, setCompany] = useState("");
+  const [employmentType, setEmploymentType] = useState("Full-time");
+  const [location, setLocation] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [isCurrent, setIsCurrent] = useState(false);
+  const [description, setDescription] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    formData.set("isCurrent", String(isCurrent));
-    if (initialData?.id) formData.set("id", initialData.id);
+  useEffect(() => {
+    if (initialData) {
+      setPosition(initialData.position || "");
+      setCompany(initialData.company || "");
+      setEmploymentType(initialData.employmentType || "Full-time");
+      setLocation(initialData.location || "");
+      setStartDate(
+        initialData.startDate
+          ? new Date(initialData.startDate).toISOString().split("T")[0]
+          : ""
+      );
+      setEndDate(
+        initialData.endDate
+          ? new Date(initialData.endDate).toISOString().split("T")[0]
+          : ""
+      );
+      setIsCurrent(Boolean(initialData.isCurrent));
+      setDescription(initialData.description || "");
+    } else {
+      setPosition("");
+      setCompany("");
+      setEmploymentType("Full-time");
+      setLocation("");
+      setStartDate("");
+      setEndDate("");
+      setIsCurrent(false);
+      setDescription("");
+    }
+  }, [initialData, isOpen]);
 
-    await saveExperienceAction(formData);
-    setLoading(false);
-    onClose();
-  };
+  if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Work Experience" : "Add Work Experience"}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Company / Organization *</label>
-            <input
-              name="company"
-              defaultValue={initialData?.company ?? ""}
-              required
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-              placeholder={companyPlaceholder}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Position / Role *</label>
-            <input
-              name="position"
-              defaultValue={initialData?.position ?? ""}
-              required
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-              placeholder={positionPlaceholder}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Employment Type</label>
-            <select
-              name="employmentType"
-              defaultValue={initialData?.employmentType ?? "Full-time"}
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 bg-white focus:outline-none focus:border-black"
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+        <div className="bg-white rounded-3xl p-6 w-full max-w-lg space-y-4 shadow-xl border border-neutral-200 my-8">
+          <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+            <h3 className="text-sm font-bold text-neutral-900">
+              {initialData ? "Edit Experience" : "Add Work Experience"}
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-neutral-400 hover:text-neutral-700 cursor-pointer"
             >
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
-              <option value="Contract">Contract</option>
-              <option value="Internship">Internship</option>
-              <option value="Freelance">Freelance</option>
-            </select>
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Location</label>
-            <input
-              name="location"
-              defaultValue={initialData?.location ?? ""}
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-              placeholder="e.g. Batam / Remote"
-            />
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Start Date *</label>
-            <input
-              type="date"
-              name="startDate"
-              defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
-              required
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">End Date</label>
-            <input
-              type="date"
-              name="endDate"
-              disabled={isCurrent}
-              defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black disabled:bg-neutral-100"
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="isCurrentExp"
-            checked={isCurrent}
-            onChange={(e) => setIsCurrent(e.target.checked)}
-            className="rounded border-neutral-300"
-          />
-          <label htmlFor="isCurrentExp" className="text-xs text-neutral-700 font-medium cursor-pointer">
-            Currently working in this role
-          </label>
-        </div>
-
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Key Achievements & Responsibilities</label>
-          <textarea
-            name="description"
-            defaultValue={initialData?.description ?? ""}
-            rows={4}
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder={descPlaceholder}
-          />
-        </div>
-
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
+          <form
+            action={async (formData) => {
+              await saveExperienceAction(formData);
+              onClose();
+            }}
+            className="space-y-4"
           >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
-          >
-            {loading ? "Saving..." : "Save Experience"}
-          </button>
+            {initialData?.id && (
+              <input type="hidden" name="id" value={initialData.id} />
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
+                  Position *
+                </label>
+                <input
+                  name="position"
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                  placeholder={positionPlaceholder}
+                  required
+                  className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
+                  Company *
+                </label>
+                <input
+                  name="company"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder={companyPlaceholder}
+                  required
+                  className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
+                  Employment Type
+                </label>
+                <select
+                  name="employmentType"
+                  value={employmentType}
+                  onChange={(e) => setEmploymentType(e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black bg-white"
+                >
+                  <option value="Full-time">Full-time</option>
+                  <option value="Part-time">Part-time</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Freelance">Freelance</option>
+                  <option value="Internship">Internship</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
+                  Location
+                </label>
+                <input
+                  name="location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="e.g., Batam, Indonesia"
+                  className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
+                  Start Date *
+                </label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  required
+                  className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-700 mb-1">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={endDate}
+                  disabled={isCurrent}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black disabled:bg-neutral-100 disabled:text-neutral-400"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isCurrent"
+                name="isCurrent"
+                checked={isCurrent}
+                onChange={(e) => setIsCurrent(e.target.checked)}
+                className="rounded border-neutral-300 text-black focus:ring-black"
+              />
+              <label htmlFor="isCurrent" className="text-xs font-medium text-neutral-700">
+                I currently work here
+              </label>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-neutral-700">
+                  Job Description / Responsibilities
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsAiModalOpen(true)}
+                  className="flex items-center gap-1 text-[11px] font-bold text-neutral-900 bg-yellow-400/40 hover:bg-yellow-400 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-neutral-900" />
+                  Enhance with AI
+                </button>
+              </div>
+              <textarea
+                name="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={descPlaceholder}
+                rows={5}
+                className="w-full text-xs p-3 rounded-xl border border-neutral-200 focus:outline-none focus:border-black leading-relaxed"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-neutral-100">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-neutral-950 text-white hover:bg-neutral-800 cursor-pointer"
+              >
+                Save Experience
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
-    </Modal>
+      </div>
+
+      <AiExperienceModal
+        isOpen={isAiModalOpen}
+        onClose={() => setIsAiModalOpen(false)}
+        position={position}
+        company={company}
+        currentDescription={description}
+        onApply={(improved) => setDescription(improved)}
+      />
+    </>
   );
 }
 
-// 2. MODAL EDUCATION
-export function EducationModal({
-  isOpen,
-  onClose,
-  initialData,
-  institutionPlaceholder = "e.g. Politeknik Negeri Batam",
-  majorPlaceholder = "e.g. Teknik Informatika",
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  initialData?: any;
-  institutionPlaceholder?: string;
-  majorPlaceholder?: string;
-}) {
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    if (initialData?.id) formData.set("id", initialData.id);
-
-    await saveEducationAction(formData);
-    setLoading(false);
-    onClose();
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Education" : "Add Education"}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Institution *</label>
-          <input
-            name="institution"
-            defaultValue={initialData?.institution ?? ""}
-            required
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder={institutionPlaceholder}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Degree *</label>
-            <input
-              name="degree"
-              defaultValue={initialData?.degree ?? ""}
-              required
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-              placeholder="Diploma 3 (D3) / Bachelor's (S1)"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Field of Study / Major *</label>
-            <input
-              name="fieldOfStudy"
-              defaultValue={initialData?.fieldOfStudy ?? ""}
-              required
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-              placeholder={majorPlaceholder}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Start Date *</label>
-            <input
-              type="date"
-              name="startDate"
-              defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
-              required
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">End Date / Expected</label>
-            <input
-              type="date"
-              name="endDate"
-              defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Description / GPA / Activities</label>
-          <textarea
-            name="description"
-            defaultValue={initialData?.description ?? ""}
-            rows={3}
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder="e.g. GPA: 3.85/4.00, Head of Informatics Club..."
-          />
-        </div>
-
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
-          >
-            {loading ? "Saving..." : "Save Education"}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  );
-}
-
-// 3. MODAL PROJECT
+/* =========================================================================
+   2. PROJECT / PORTFOLIO MODAL
+   ========================================================================= */
 export function ProjectModal({
   isOpen,
   onClose,
   initialData,
-  sectionTitle = "Portfolio Entry",
-  titleLabel = "Title *",
-  titlePlaceholder = "e.g. Case / Project Title",
-  technologiesLabel = "Tech Stack / Key Focus",
-  technologiesPlaceholder = "e.g. Next.js, PostgreSQL, Tailwind",
+  sectionTitle = "Project / Portfolio",
+  titleLabel = "Project Title",
+  titlePlaceholder = "e.g., Career Passport Platform",
+  technologiesLabel = "Technologies / Stack",
+  technologiesPlaceholder = "e.g., Next.js, PostgreSQL, Tailwind",
   linkPlaceholder = "https://...",
-  descPlaceholder = "- Description of deliverables\n- Key impact and results",
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  initialData?: any;
-  sectionTitle?: string;
-  titleLabel?: string;
-  titlePlaceholder?: string;
-  technologiesLabel?: string;
-  technologiesPlaceholder?: string;
-  linkPlaceholder?: string;
-  descPlaceholder?: string;
-}) {
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    if (initialData?.id) formData.set("id", initialData.id);
-
-    await saveProjectAction(formData);
-    setLoading(false);
-    onClose();
-  };
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? `Edit ${sectionTitle}` : `Add ${sectionTitle}`}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">{titleLabel}</label>
-          <input
-            name="title"
-            defaultValue={initialData?.title ?? ""}
-            required
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder={titlePlaceholder}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Start Date</label>
-            <input
-              type="date"
-              name="startDate"
-              defaultValue={initialData?.startDate ? new Date(initialData.startDate).toISOString().split("T")[0] : ""}
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">End Date / Completed</label>
-            <input
-              type="date"
-              name="endDate"
-              defaultValue={initialData?.endDate ? new Date(initialData.endDate).toISOString().split("T")[0] : ""}
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">{technologiesLabel}</label>
-          <input
-            name="technologies"
-            defaultValue={initialData?.technologies ?? ""}
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder={technologiesPlaceholder}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Live Demo / Proof URL</label>
-            <input
-              name="link"
-              defaultValue={initialData?.link ?? ""}
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-              placeholder={linkPlaceholder}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">GitHub / Document Link</label>
-            <input
-              name="githubUrl"
-              defaultValue={initialData?.githubUrl ?? ""}
-              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-              placeholder="https://github.com/... or Google Drive"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Description & Key Impact *</label>
-          <textarea
-            name="description"
-            defaultValue={initialData?.description ?? ""}
-            required
-            rows={4}
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder={descPlaceholder}
-          />
-        </div>
-
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
-          >
-            {loading ? "Saving..." : "Save Project"}
-          </button>
-        </div>
-      </form>
-    </Modal>
+  descPlaceholder = "Brief overview of what you built...",
+}: any) {
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [technologies, setTechnologies] = useState(initialData?.technologies || "");
+  const [link, setLink] = useState(initialData?.link || "");
+  const [githubUrl, setGithubUrl] = useState(initialData?.githubUrl || "");
+  const [startDate, setStartDate] = useState(
+    initialData?.startDate
+      ? new Date(initialData.startDate).toISOString().split("T")[0]
+      : ""
   );
-}
+  const [endDate, setEndDate] = useState(
+    initialData?.endDate
+      ? new Date(initialData.endDate).toISOString().split("T")[0]
+      : ""
+  );
 
-// 4. MODAL CERTIFICATION
-export function CertificationModal({
-  isOpen,
-  onClose,
-  initialData,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  initialData?: any;
-}) {
-  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title || "");
+      setDescription(initialData.description || "");
+      setTechnologies(initialData.technologies || "");
+      setLink(initialData.link || "");
+      setGithubUrl(initialData.githubUrl || "");
+      setStartDate(
+        initialData.startDate
+          ? new Date(initialData.startDate).toISOString().split("T")[0]
+          : ""
+      );
+      setEndDate(
+        initialData.endDate
+          ? new Date(initialData.endDate).toISOString().split("T")[0]
+          : ""
+      );
+    } else {
+      setTitle("");
+      setDescription("");
+      setTechnologies("");
+      setLink("");
+      setGithubUrl("");
+      setStartDate("");
+      setEndDate("");
+    }
+  }, [initialData, isOpen]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    if (initialData?.id) formData.set("id", initialData.id);
-
-    await saveCertificationAction(formData);
-    setLoading(false);
-    onClose();
-  };
+  if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Certification" : "Add Certification"}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Certification Name *</label>
-          <input
-            name="name"
-            defaultValue={initialData?.name ?? ""}
-            required
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder="e.g. AWS Certified Solutions Architect / Brevet Pajak AB"
-          />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl p-6 w-full max-w-lg space-y-4 shadow-xl border border-neutral-200 my-8">
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+          <h3 className="text-sm font-bold text-neutral-900">
+            {initialData ? `Edit ${sectionTitle}` : `Add ${sectionTitle}`}
+          </h3>
+          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Issuing Organization *</label>
-          <input
-            name="issuer"
-            defaultValue={initialData?.issuer ?? ""}
-            required
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder="e.g. Amazon Web Services / Ikatan Akuntan Indonesia"
-          />
-        </div>
+        <form
+          action={async (formData) => {
+            await saveProjectAction(formData);
+            onClose();
+          }}
+          className="space-y-4"
+        >
+          {initialData?.id && <input type="hidden" name="id" value={initialData.id} />}
 
-        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Issue Date *</label>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">
+              {titleLabel} *
+            </label>
             <input
-              type="date"
-              name="issueDate"
-              defaultValue={initialData?.issueDate ? new Date(initialData.issueDate).toISOString().split("T")[0] : ""}
+              name="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={titlePlaceholder}
               required
               className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             />
           </div>
+
           <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Expiry Date</label>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">
+              {technologiesLabel}
+            </label>
             <input
-              type="date"
-              name="expiryDate"
-              defaultValue={initialData?.expiryDate ? new Date(initialData.expiryDate).toISOString().split("T")[0] : ""}
+              name="technologies"
+              value={technologies}
+              onChange={(e) => setTechnologies(e.target.value)}
+              placeholder={technologiesPlaceholder}
               className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             />
           </div>
-        </div>
 
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Credential Link / Verification URL</label>
-          <input
-            name="credentialUrl"
-            defaultValue={initialData?.credentialUrl ?? ""}
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder="https://www.credly.com/badges/..."
-          />
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">Start Date</label>
+              <input
+                type="date"
+                name="startDate"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">End Date</label>
+              <input
+                type="date"
+                name="endDate"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              />
+            </div>
+          </div>
 
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
-          >
-            {loading ? "Saving..." : "Save Certification"}
-          </button>
-        </div>
-      </form>
-    </Modal>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">Live URL</label>
+              <input
+                name="link"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder={linkPlaceholder}
+                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">Repository / Document</label>
+              <input
+                name="githubUrl"
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
+                placeholder="https://github.com/..."
+                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Description</label>
+            <textarea
+              name="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={descPlaceholder}
+              rows={4}
+              className="w-full text-xs p-3 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-neutral-100">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-neutral-950 text-white hover:bg-neutral-800 cursor-pointer"
+            >
+              Save Project
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
 
-// 5. MODAL ACHIEVEMENT
+/* =========================================================================
+   3. EDUCATION MODAL
+   ========================================================================= */
+export function EducationModal({
+  isOpen,
+  onClose,
+  initialData,
+  institutionPlaceholder = "e.g., Politeknik Negeri Batam",
+  majorPlaceholder = "e.g., Informatics Engineering",
+}: any) {
+  const [institution, setInstitution] = useState(initialData?.institution || "");
+  const [degree, setDegree] = useState(initialData?.degree || "");
+  const [fieldOfStudy, setFieldOfStudy] = useState(initialData?.fieldOfStudy || "");
+  const [startDate, setStartDate] = useState(
+    initialData?.startDate
+      ? new Date(initialData.startDate).toISOString().split("T")[0]
+      : ""
+  );
+  const [endDate, setEndDate] = useState(
+    initialData?.endDate
+      ? new Date(initialData.endDate).toISOString().split("T")[0]
+      : ""
+  );
+  const [description, setDescription] = useState(initialData?.description || "");
+
+  useEffect(() => {
+    if (initialData) {
+      setInstitution(initialData.institution || "");
+      setDegree(initialData.degree || "");
+      setFieldOfStudy(initialData.fieldOfStudy || "");
+      setStartDate(
+        initialData.startDate
+          ? new Date(initialData.startDate).toISOString().split("T")[0]
+          : ""
+      );
+      setEndDate(
+        initialData.endDate
+          ? new Date(initialData.endDate).toISOString().split("T")[0]
+          : ""
+      );
+      setDescription(initialData.description || "");
+    } else {
+      setInstitution("");
+      setDegree("");
+      setFieldOfStudy("");
+      setStartDate("");
+      setEndDate("");
+      setDescription("");
+    }
+  }, [initialData, isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl p-6 w-full max-w-lg space-y-4 shadow-xl border border-neutral-200 my-8">
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+          <h3 className="text-sm font-bold text-neutral-900">
+            {initialData ? "Edit Education" : "Add Education"}
+          </h3>
+          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form
+          action={async (formData) => {
+            await saveEducationAction(formData);
+            onClose();
+          }}
+          className="space-y-4"
+        >
+          {initialData?.id && <input type="hidden" name="id" value={initialData.id} />}
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">
+              Institution *
+            </label>
+            <input
+              name="institution"
+              value={institution}
+              onChange={(e) => setInstitution(e.target.value)}
+              placeholder={institutionPlaceholder}
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">Degree</label>
+              <input
+                name="degree"
+                value={degree}
+                onChange={(e) => setDegree(e.target.value)}
+                placeholder="e.g., Associate Degree (D3)"
+                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">Field of Study</label>
+              <input
+                name="fieldOfStudy"
+                value={fieldOfStudy}
+                onChange={(e) => setFieldOfStudy(e.target.value)}
+                placeholder={majorPlaceholder}
+                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">Start Date *</label>
+              <input
+                type="date"
+                name="startDate"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                required
+                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">End Date</label>
+              <input
+                type="date"
+                name="endDate"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Description / Activities</label>
+            <textarea
+              name="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="e.g., Graduated with Honors, GPA, Relevant Coursework..."
+              rows={3}
+              className="w-full text-xs p-3 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-neutral-100">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-neutral-950 text-white hover:bg-neutral-800 cursor-pointer"
+            >
+              Save Education
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   4. CERTIFICATIONS MODAL
+   ========================================================================= */
+export function CertificationModal({
+  isOpen,
+  onClose,
+  initialData,
+}: any) {
+  const [name, setName] = useState(initialData?.name || "");
+  const [issuer, setIssuer] = useState(initialData?.issuer || "");
+  const [issueDate, setIssueDate] = useState(
+    initialData?.issueDate
+      ? new Date(initialData.issueDate).toISOString().split("T")[0]
+      : ""
+  );
+  const [expiryDate, setExpiryDate] = useState(
+    initialData?.expiryDate
+      ? new Date(initialData.expiryDate).toISOString().split("T")[0]
+      : ""
+  );
+  const [credentialUrl, setCredentialUrl] = useState(initialData?.credentialUrl || "");
+
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name || "");
+      setIssuer(initialData.issuer || "");
+      setIssueDate(
+        initialData.issueDate
+          ? new Date(initialData.issueDate).toISOString().split("T")[0]
+          : ""
+      );
+      setExpiryDate(
+        initialData.expiryDate
+          ? new Date(initialData.expiryDate).toISOString().split("T")[0]
+          : ""
+      );
+      setCredentialUrl(initialData.credentialUrl || "");
+    } else {
+      setName("");
+      setIssuer("");
+      setIssueDate("");
+      setExpiryDate("");
+      setCredentialUrl("");
+    }
+  }, [initialData, isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl p-6 w-full max-w-lg space-y-4 shadow-xl border border-neutral-200 my-8">
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+          <h3 className="text-sm font-bold text-neutral-900">
+            {initialData ? "Edit Certification" : "Add Certification"}
+          </h3>
+          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 cursor-pointer">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form
+          action={async (formData) => {
+            await saveCertificationAction(formData);
+            onClose();
+          }}
+          className="space-y-4"
+        >
+          {initialData?.id && <input type="hidden" name="id" value={initialData.id} />}
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">
+              Certification Name *
+            </label>
+            <input
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g., AWS Certified Solutions Architect"
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">
+              Issuing Organization *
+            </label>
+            <input
+              name="issuer"
+              value={issuer}
+              onChange={(e) => setIssuer(e.target.value)}
+              placeholder="e.g., Amazon Web Services (AWS)"
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">Issue Date *</label>
+              <input
+                type="date"
+                name="issueDate"
+                value={issueDate}
+                onChange={(e) => setIssueDate(e.target.value)}
+                required
+                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">Expiry Date</label>
+              <input
+                type="date"
+                name="expiryDate"
+                value={expiryDate}
+                onChange={(e) => setExpiryDate(e.target.value)}
+                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Credential URL</label>
+            <input
+              name="credentialUrl"
+              value={credentialUrl}
+              onChange={(e) => setCredentialUrl(e.target.value)}
+              placeholder="https://..."
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-neutral-100">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-neutral-950 text-white hover:bg-neutral-800 cursor-pointer"
+            >
+              Save Certification
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   5. ACHIEVEMENTS & HONORS MODAL
+   ========================================================================= */
 export function AchievementModal({
   isOpen,
   onClose,
   initialData,
-  titlePlaceholder = "e.g. Award / Competition Title",
-  issuerPlaceholder = "e.g. Issuing Organization",
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  initialData?: any;
-  titlePlaceholder?: string;
-  issuerPlaceholder?: string;
-}) {
-  const [loading, setLoading] = useState(false);
+  titlePlaceholder = "e.g., 1st Place National Hackathon",
+  issuerPlaceholder = "e.g., Ministry of ICT",
+}: any) {
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [issuer, setIssuer] = useState(initialData?.issuer || "");
+  const [date, setDate] = useState(
+    initialData?.date
+      ? new Date(initialData.date).toISOString().split("T")[0]
+      : ""
+  );
+  const [description, setDescription] = useState(initialData?.description || "");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    if (initialData?.id) formData.set("id", initialData.id);
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title || "");
+      setIssuer(initialData.issuer || "");
+      setDate(
+        initialData.date
+          ? new Date(initialData.date).toISOString().split("T")[0]
+          : ""
+      );
+      setDescription(initialData.description || "");
+    } else {
+      setTitle("");
+      setIssuer("");
+      setDate("");
+      setDescription("");
+    }
+  }, [initialData, isOpen]);
 
-    await saveAchievementAction(formData);
-    setLoading(false);
-    onClose();
-  };
+  if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={initialData ? "Edit Achievement" : "Add Achievement"}>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Title / Award Name *</label>
-          <input
-            name="title"
-            defaultValue={initialData?.title ?? ""}
-            required
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder={titlePlaceholder}
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Issuer / Organization</label>
-          <input
-            name="issuer"
-            defaultValue={initialData?.issuer ?? ""}
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder={issuerPlaceholder}
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Date</label>
-          <input
-            type="date"
-            name="date"
-            defaultValue={initialData?.date ? new Date(initialData.date).toISOString().split("T")[0] : ""}
-            className="w-full text-xs p-2 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Description</label>
-          <textarea
-            name="description"
-            defaultValue={initialData?.description ?? ""}
-            rows={3}
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder="Deskripsi pencapaian atau rekognisi..."
-          />
-        </div>
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
-          >
-            {loading ? "Saving..." : "Save Achievement"}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl p-6 w-full max-w-lg space-y-4 shadow-xl border border-neutral-200 my-8">
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+          <h3 className="text-sm font-bold text-neutral-900">
+            {initialData ? "Edit Achievement" : "Add Achievement"}
+          </h3>
+          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 cursor-pointer">
+            <X className="w-5 h-5" />
           </button>
         </div>
-      </form>
-    </Modal>
+
+        <form
+          action={async (formData) => {
+            await saveAchievementAction(formData);
+            onClose();
+          }}
+          className="space-y-4"
+        >
+          {initialData?.id && <input type="hidden" name="id" value={initialData.id} />}
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">
+              Achievement Title *
+            </label>
+            <input
+              name="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={titlePlaceholder}
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">
+              Issuing Organization / Event
+            </label>
+            <input
+              name="issuer"
+              value={issuer}
+              onChange={(e) => setIssuer(e.target.value)}
+              placeholder={issuerPlaceholder}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Date</label>
+            <input
+              type="date"
+              name="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Description</label>
+            <textarea
+              name="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Detail your competition scope or achievement..."
+              rows={3}
+              className="w-full text-xs p-3 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-neutral-100">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-neutral-950 text-white hover:bg-neutral-800 cursor-pointer"
+            >
+              Save Achievement
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
 
-// 6. MODAL SKILL
+/* =========================================================================
+   6. SKILL MODAL
+   ========================================================================= */
 export function SkillModal({
   isOpen,
   onClose,
-  skillPlaceholder = "e.g. Contract Drafting, Financial Modeling, etc.",
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  skillPlaceholder?: string;
-}) {
-  const [loading, setLoading] = useState(false);
+  skillPlaceholder = "e.g., TypeScript, Docker, SQL",
+}: any) {
+  const [name, setName] = useState("");
+  const [level, setLevel] = useState("INTERMEDIATE");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    await addSkillAction(formData);
-    setLoading(false);
-    onClose();
-  };
+  if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add Skill">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Skill Name *</label>
-          <input
-            name="name"
-            required
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
-            placeholder={skillPlaceholder}
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-neutral-700 mb-1">Proficiency Level</label>
-          <select
-            name="level"
-            className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black bg-white"
-          >
-            <option value="BEGINNER">Beginner</option>
-            <option value="INTERMEDIATE">Intermediate</option>
-            <option value="ADVANCED">Advanced</option>
-          </select>
-        </div>
-        <div className="flex justify-end gap-2 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-xs rounded-xl border border-neutral-200 font-medium hover:bg-neutral-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 text-xs rounded-xl bg-neutral-950 text-white font-bold hover:bg-neutral-800 disabled:opacity-50"
-          >
-            {loading ? "Adding..." : "Add Skill"}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl p-6 w-full max-w-sm space-y-4 shadow-xl border border-neutral-200">
+        <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+          <h3 className="text-sm font-bold text-neutral-900">Add Custom Skill</h3>
+          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-700 cursor-pointer">
+            <X className="w-5 h-5" />
           </button>
         </div>
-      </form>
-    </Modal>
+
+        <form
+          action={async (formData) => {
+            await addSkillAction(formData);
+            onClose();
+          }}
+          className="space-y-4"
+        >
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">
+              Skill Name *
+            </label>
+            <input
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={skillPlaceholder}
+              required
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Proficiency Level</label>
+            <select
+              name="level"
+              value={level}
+              onChange={(e) => setLevel(e.target.value)}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black bg-white"
+            >
+              <option value="BEGINNER">Beginner</option>
+              <option value="INTERMEDIATE">Intermediate</option>
+              <option value="ADVANCED">Advanced</option>
+              <option value="EXPERT">Expert</option>
+            </select>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-neutral-100">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-600 hover:bg-neutral-100 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-neutral-950 text-white hover:bg-neutral-800 cursor-pointer"
+            >
+              Add Skill
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

@@ -232,19 +232,19 @@ export function CareerProfileView({ profile }: CareerProfileViewProps) {
                 <div key={proj.id} className="p-4 rounded-2xl border border-neutral-100 bg-neutral-50/60 space-y-2">
                   <div className="flex justify-between items-start">
                     <div>
-  <h4 className="font-bold text-xs text-neutral-900">{proj.title}</h4>
-  {proj.startDate && (
-    <p className="text-[10px] text-neutral-400 font-mono mt-0.5">
-      {new Date(proj.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })} -{" "}
-      {proj.endDate ? new Date(proj.endDate).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Present"}
-    </p>
-  )}
-  {proj.technologies && (
-    <p className="text-[10px] font-bold text-neutral-500 font-mono mt-0.5">
-      Stack: {proj.technologies}
-    </p>
-  )}
-</div>
+                      <h4 className="font-bold text-xs text-neutral-900">{proj.title}</h4>
+                      {proj.startDate && (
+                        <p className="text-[10px] text-neutral-400 font-mono mt-0.5">
+                          {new Date(proj.startDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })} -{" "}
+                          {proj.endDate ? new Date(proj.endDate).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Present"}
+                        </p>
+                      )}
+                      {proj.technologies && (
+                        <p className="text-[10px] font-bold text-neutral-500 font-mono mt-0.5">
+                          Stack: {proj.technologies}
+                        </p>
+                      )}
+                    </div>
                     <div className="flex items-center gap-1">
                       <button onClick={() => handleOpenEdit("proj", proj)} className="p-1 text-neutral-400 hover:text-black transition cursor-pointer">
                         <Pencil className="w-3.5 h-3.5" />
@@ -455,7 +455,7 @@ export function CareerProfileView({ profile }: CareerProfileViewProps) {
         </div>
       </div>
 
-      {/* 3. SKILLS SECTION WITH QUICK DOMAIN SUGGESTIONS */}
+      {/* 3. SKILLS SECTION */}
       <div className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -475,7 +475,7 @@ export function CareerProfileView({ profile }: CareerProfileViewProps) {
           </button>
         </div>
 
-        {/* DOMAIN SUGGESTIONS CHIPS */}
+        {/* DOMAIN SUGGESTIONS */}
         <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-100 space-y-2.5">
           <div className="flex items-center gap-1.5 text-[11px] font-bold text-neutral-700">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -483,8 +483,8 @@ export function CareerProfileView({ profile }: CareerProfileViewProps) {
           </div>
           <div className="flex flex-wrap gap-1.5">
             {(industryMeta?.suggestedSkills || []).map((sk) => {
-  const alreadyAdded = existingSkillNames.has(sk.toLowerCase());
-  return (
+              const alreadyAdded = existingSkillNames.has(sk.toLowerCase());
+              return (
                 <button
                   key={sk}
                   disabled={alreadyAdded || quickSkillLoading === sk}
