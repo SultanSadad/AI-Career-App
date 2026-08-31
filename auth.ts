@@ -1,6 +1,6 @@
 import dns from "node:dns";
 
-// Paksa Node.js DNS resolver selalu mendahulukan IPv4 untuk semua outgoing request
+// Paksa Node.js DNS resolver selalu mendahulukan IPv4
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder("ipv4first");
 }
@@ -12,7 +12,6 @@ import { prisma } from "@/lib/prisma";
 import { authConfig } from "./auth.config";
 import { Agent, setGlobalDispatcher } from "undici";
 
-// Set dispatcher dengan timeout 30 detik
 const agent = new Agent({
   connect: {
     timeout: 30000,
@@ -43,6 +42,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;

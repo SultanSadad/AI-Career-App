@@ -22,16 +22,50 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({ user, profile }: DashboardViewProps) {
-  const industryMeta = getIndustryConfig(profile?.industry);
+  // Ambil metadata & konfigurasi industri profil
+  const industryMeta = getIndustryConfig(
+    profile?.industry || "Information Technology & Software"
+  );
+
+  const portfolioTitle =
+    industryMeta?.portfolioSectionTitle || "Key Projects & Repositories";
+  const industryName =
+    industryMeta?.name || profile?.industry || "Information Technology & Software";
+  const industryBadge =
+    (industryMeta as any)?.badge || industryMeta?.name || "General Tech";
 
   // 1. Hitung Profile Completeness
   const checklist = [
-    { label: "Target Industry Selected", isDone: Boolean(profile?.industry), weight: 15 },
-    { label: "Professional Headline & Bio", isDone: Boolean(profile?.headline), weight: 15 },
-    { label: "Work Experience", isDone: (profile?.experiences?.length ?? 0) > 0, weight: 25 },
-    { label: industryMeta.portfolioSectionTitle, isDone: (profile?.projects?.length ?? 0) > 0, weight: 25 },
-    { label: "Education Records", isDone: (profile?.educations?.length ?? 0) > 0, weight: 10 },
-    { label: "Key Skills (Min 3)", isDone: (profile?.skills?.length ?? 0) >= 3, weight: 10 },
+    {
+      label: "Target Industry Selected",
+      isDone: Boolean(profile?.industry),
+      weight: 15,
+    },
+    {
+      label: "Professional Headline & Bio",
+      isDone: Boolean(profile?.headline),
+      weight: 15,
+    },
+    {
+      label: "Work Experience",
+      isDone: (profile?.experiences?.length ?? 0) > 0,
+      weight: 25,
+    },
+    {
+      label: portfolioTitle,
+      isDone: (profile?.projects?.length ?? 0) > 0,
+      weight: 25,
+    },
+    {
+      label: "Education Records",
+      isDone: (profile?.educations?.length ?? 0) > 0,
+      weight: 10,
+    },
+    {
+      label: "Key Skills (Min 3)",
+      isDone: (profile?.skills?.length ?? 0) >= 3,
+      weight: 10,
+    },
   ];
 
   const completionPercentage = checklist.reduce(
@@ -46,7 +80,7 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
         <div className="relative z-10 space-y-4 max-w-2xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-800/80 border border-neutral-700 text-[#FFEB43] text-[11px] font-bold tracking-wide uppercase">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{industryMeta.badge}</span>
+            <span>{industryBadge}</span>
           </div>
 
           <h1 className="text-2xl md:text-3xl font-black tracking-tight">
@@ -55,14 +89,15 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
 
           <p className="text-xs md:text-sm text-neutral-400 leading-relaxed">
             Data karir Anda saat ini terhubung dengan domain{" "}
-            <span className="text-white font-semibold">{industryMeta.name}</span>. AI akan
-            mengoptimasi CV ATS dan saran kata kunci sesuai standar profesi ini.
+            <span className="text-white font-semibold">{industryName}</span>. AI
+            akan mengoptimasi CV ATS dan saran kata kunci sesuai standar profesi
+            ini.
           </p>
 
           <div className="pt-2 flex flex-wrap gap-3">
             <Link
               href="/cv-builder"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FFEB43] text-neutral-950 text-xs font-bold hover:bg-[#ffe724] transition"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FFEB43] text-neutral-950 text-xs font-bold hover:bg-[#ffe724] transition shadow-sm"
             >
               <FileText className="w-4 h-4" />
               <span>Tailor CV Baru</span>
@@ -77,7 +112,7 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
           </div>
         </div>
 
-        {/* Decorative Grid Accent */}
+        {/* Decorative Radial Accent */}
         <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial from-neutral-800/40 to-transparent pointer-events-none hidden md:block" />
       </div>
 
@@ -102,7 +137,7 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
                   completionPercentage === 100
                     ? "bg-emerald-500"
                     : completionPercentage > 60
-                    ? "bg-[#FFEB43] text-black"
+                    ? "bg-[#FFEB43]"
                     : "bg-neutral-900"
                 }`}
                 style={{ width: `${completionPercentage}%` }}
@@ -119,8 +154,17 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
           {/* Checklist Items */}
           <div className="space-y-2 pt-2 border-t border-neutral-100">
             {checklist.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between text-xs">
-                <span className={item.isDone ? "text-neutral-700 font-medium" : "text-neutral-400 line-through"}>
+              <div
+                key={idx}
+                className="flex items-center justify-between text-xs"
+              >
+                <span
+                  className={
+                    item.isDone
+                      ? "text-neutral-700 font-medium"
+                      : "text-neutral-400 line-through"
+                  }
+                >
                   {item.label}
                 </span>
                 {item.isDone ? (
@@ -150,7 +194,9 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
               <div className="text-2xl font-black text-neutral-900">
                 {profile?.experiences?.length ?? 0}
               </div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">Experiences</p>
+              <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                Experiences
+              </p>
             </div>
           </div>
 
@@ -163,7 +209,7 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
                 {profile?.projects?.length ?? 0}
               </div>
               <p className="text-xs text-neutral-500 font-medium mt-0.5 truncate">
-                {industryMeta.portfolioSectionTitle.split(" ")[0]}
+                {portfolioTitle.split(" ")[0]}
               </p>
             </div>
           </div>
@@ -176,7 +222,9 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
               <div className="text-2xl font-black text-neutral-900">
                 {profile?.skills?.length ?? 0}
               </div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">Skills</p>
+              <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                Skills
+              </p>
             </div>
           </div>
 
@@ -188,7 +236,9 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
               <div className="text-2xl font-black text-neutral-900">
                 {profile?.educations?.length ?? 0}
               </div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">Educations</p>
+              <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                Educations
+              </p>
             </div>
           </div>
 
@@ -200,7 +250,9 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
               <div className="text-2xl font-black text-neutral-900">
                 {profile?.achievements?.length ?? 0}
               </div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">Honors & Awards</p>
+              <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                Honors & Awards
+              </p>
             </div>
           </div>
 
@@ -210,7 +262,9 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
             </div>
             <div className="pt-4">
               <div className="text-2xl font-black text-neutral-900">92%</div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">Avg. ATS Match</p>
+              <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                Avg. ATS Match
+              </p>
             </div>
           </div>
         </div>
@@ -228,7 +282,8 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
               <span>ATS CV Generator</span>
             </div>
             <p className="text-xs text-neutral-500">
-              Sesuaikan CV dengan deskripsi pekerjaan target menggunakan Gemini 3.6 Flash.
+              Sesuaikan CV dengan deskripsi pekerjaan target menggunakan AI
+              Tailoring.
             </p>
           </div>
           <div className="w-9 h-9 rounded-2xl bg-neutral-100 group-hover:bg-neutral-950 group-hover:text-white flex items-center justify-center transition shrink-0">
@@ -246,7 +301,8 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
               <span>Career & Skill Gap Insights</span>
             </div>
             <p className="text-xs text-neutral-500">
-              Evaluasi kata kunci yang hilang dan analisis kecocokan profil dengan pasar kerja.
+              Evaluasi kata kunci yang hilang dan analisis kecocokan profil
+              dengan pasar kerja.
             </p>
           </div>
           <div className="w-9 h-9 rounded-2xl bg-neutral-100 group-hover:bg-neutral-950 group-hover:text-white flex items-center justify-center transition shrink-0">

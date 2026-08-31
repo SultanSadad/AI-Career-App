@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { AppHeader } from "@/components/layout/app-header";
 import { CareerProfileView } from "@/components/profile/career-profile-view";
 import { redirect } from "next/navigation";
 
@@ -46,8 +45,7 @@ export default async function CareerProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-neutral-900 flex flex-col">
-      <AppHeader activeNav="career-profile" userName={session.user.name} />
+    <div className="text-neutral-900 flex flex-col">
       <CareerProfileView profile={user?.profile ?? null} />
     </div>
   );

@@ -3,7 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, UserCircle, Sparkles, Menu, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  FileText,
+  UserCircle,
+  Sparkles,
+  Menu,
+  X,
+} from "lucide-react";
 import { UserMenu } from "./user-menu";
 
 interface AppHeaderProps {
@@ -51,7 +58,9 @@ export function AppHeader({ activeNav, user }: AppHeaderProps) {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
             {navs.map((n) => {
-              const isActive = activeNav ? activeNav === n.href.replace("/", "") : pathname === n.href;
+              const isActive = activeNav
+                ? activeNav === n.href.replace("/", "")
+                : pathname === n.href;
               return (
                 <Link
                   key={n.href}
@@ -69,7 +78,7 @@ export function AppHeader({ activeNav, user }: AppHeaderProps) {
           </nav>
         </div>
 
-        {/* User Profile Menu */}
+        {/* User Profile Menu (Klik avatar membuka popover/modal) */}
         <UserMenu user={user} />
       </header>
 
@@ -78,7 +87,9 @@ export function AppHeader({ activeNav, user }: AppHeaderProps) {
         <div className="md:hidden bg-white border-b border-neutral-200 px-4 py-3 space-y-1 z-40">
           {navs.map((n) => {
             const Icon = n.icon;
-            const isActive = activeNav ? activeNav === n.href.replace("/", "") : pathname === n.href;
+            const isActive = activeNav
+              ? activeNav === n.href.replace("/", "")
+              : pathname === n.href;
             return (
               <Link
                 key={n.href}

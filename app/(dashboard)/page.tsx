@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { AppHeader } from "@/components/layout/app-header";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { redirect } from "next/navigation";
 
@@ -44,8 +43,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] text-neutral-900 flex flex-col">
-      <AppHeader activeNav="dashboard" user={session.user} />
+    <div className="flex-1 w-full p-6 md:p-8">
       <DashboardView user={user} profile={user?.profile ?? null} />
     </div>
   );

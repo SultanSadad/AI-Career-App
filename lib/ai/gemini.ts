@@ -9,5 +9,5 @@ export const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY || "",
 });
 
-// Update ke model terbaru sesuai rekomendasi Gemini API
+// Model aktif Google Gemini API
 export const DEFAULT_AI_MODEL = "gemini-3.6-flash";
