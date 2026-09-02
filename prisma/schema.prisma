@@ -62,6 +62,7 @@ model Profile {
   headline     String?
   bio          String?  @db.Text
   phone        String?
+  contactEmail String?
   location     String?
   linkedinUrl  String?
   githubUrl    String?

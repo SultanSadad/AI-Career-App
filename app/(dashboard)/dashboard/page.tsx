@@ -1,50 +1,26 @@
-import { auth } from "@/auth";
+import { auth } from "@/auth"; // atau path auth helper Anda
 import { prisma } from "@/lib/prisma";
-import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { redirect } from "next/navigation";
+import { DashboardView } from "@/components/dashboard/dashboard-view";
 
 export default async function DashboardPage() {
   const session = await auth();
 
-  if (!session?.user?.email) {
+  if (!session?.user?.id) {
     redirect("/login");
   }
 
-  let user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+  // Mengambil data profile candidate
+  const profile = await prisma.profile.findUnique({
+    where: { userId: session.user.id },
     include: {
-      profile: {
-        include: {
-          experiences: true,
-          educations: true,
-          skills: true,
-          projects: true,
-          achievements: true,
-        },
-      },
+      experiences: true,
+      educations: true,
+      projects: true,
+      skills: true,
+      achievements: true,
     },
   });
 
-  if (user && !user.profile) {
-    const newProfile = await prisma.profile.create({
-      data: {
-        userId: user.id,
-        industry: "Information Technology & Software",
-      },
-      include: {
-        experiences: true,
-        educations: true,
-        skills: true,
-        projects: true,
-        achievements: true,
-      },
-    });
-    user = { ...user, profile: newProfile };
-  }
-
-  return (
-    <div className="flex-1 w-full">
-      <DashboardView user={user} profile={user?.profile ?? null} />
-    </div>
-  );
+  return <DashboardView user={session.user} profile={profile} />;
 }

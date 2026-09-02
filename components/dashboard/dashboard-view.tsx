@@ -11,9 +11,11 @@ import {
   Wrench,
   Award,
   CheckCircle2,
-  TrendingUp,
   AlertCircle,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { getIndustryConfig } from "@/lib/industry-config";
 
 interface DashboardViewProps {
@@ -22,149 +24,97 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({ user, profile }: DashboardViewProps) {
-  // Ambil metadata & konfigurasi industri profil
   const industryMeta = getIndustryConfig(
-    profile?.industry || "Information Technology & Software"
+    profile?.industry || "it"
   );
 
-  const portfolioTitle =
-    industryMeta?.portfolioSectionTitle || "Key Projects & Repositories";
-  const industryName =
-    industryMeta?.name || profile?.industry || "Information Technology & Software";
-  const industryBadge =
-    (industryMeta as any)?.badge || industryMeta?.name || "General Tech";
+  const portfolioTitle = industryMeta?.portfolioSectionTitle || "Key Projects";
+  const industryName = industryMeta?.name || "Information Technology & Software";
+  const industryBadge = industryMeta?.name?.split("&")[0]?.trim() || "Career Calibrated";
 
-  // 1. Hitung Profile Completeness
+  // Checklist kesiapan profil tanpa Headline & Bio Summary (Total Bobot = 100%)
   const checklist = [
-    {
-      label: "Target Industry Selected",
-      isDone: Boolean(profile?.industry),
-      weight: 15,
-    },
-    {
-      label: "Professional Headline & Bio",
-      isDone: Boolean(profile?.headline),
-      weight: 15,
-    },
-    {
-      label: "Work Experience",
-      isDone: (profile?.experiences?.length ?? 0) > 0,
-      weight: 25,
-    },
-    {
-      label: portfolioTitle,
-      isDone: (profile?.projects?.length ?? 0) > 0,
-      weight: 25,
-    },
-    {
-      label: "Education Records",
-      isDone: (profile?.educations?.length ?? 0) > 0,
-      weight: 10,
-    },
-    {
-      label: "Key Skills (Min 3)",
-      isDone: (profile?.skills?.length ?? 0) >= 3,
-      weight: 10,
-    },
+    { label: "Academic Major / Field Selected", isDone: Boolean(profile?.industry), weight: 20 },
+    { label: "Contact Details & Location", isDone: Boolean(profile?.phone || profile?.location), weight: 10 },
+    { label: "Work Experience Records", isDone: (profile?.experiences?.length ?? 0) > 0, weight: 25 },
+    { label: portfolioTitle, isDone: (profile?.projects?.length ?? 0) > 0, weight: 25 },
+    { label: "Education History", isDone: (profile?.educations?.length ?? 0) > 0, weight: 10 },
+    { label: "Core Skills (Min. 3)", isDone: (profile?.skills?.length ?? 0) >= 3, weight: 10 },
   ];
 
   const completionPercentage = checklist.reduce(
-    (total, item) => (item.isDone ? total + item.weight : total),
+    (acc, item) => (item.isDone ? acc + item.weight : acc),
     0
   );
 
   return (
-    <main className="flex-1 max-w-6xl w-full mx-auto p-6 md:p-8 space-y-8">
-      {/* 1. WELCOME BANNER & DOMAIN BADGE */}
-      <div className="bg-neutral-950 text-white rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-xl border border-neutral-900">
-        <div className="relative z-10 space-y-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-800/80 border border-neutral-700 text-[#FFEB43] text-[11px] font-bold tracking-wide uppercase">
-            <Sparkles className="w-3.5 h-3.5" />
+    <main className="flex-1 max-w-6xl w-full mx-auto p-6 md:p-8 space-y-6">
+      {/* Hero Banner Clean */}
+      <div className="bg-white rounded-[24px] border border-black/[0.04] p-8 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-3 max-w-xl">
+          <Badge variant="blue">
+            <Sparkles className="w-3 h-3" />
             <span>{industryBadge}</span>
-          </div>
+          </Badge>
 
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight">
-            Selamat Datang, {user?.name?.split(" ")[0] ?? "Kandidat"}!
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#1D1D1F]">
+            Welcome back, {user?.name?.split(" ")[0] ?? "Candidate"}
           </h1>
 
-          <p className="text-xs md:text-sm text-neutral-400 leading-relaxed">
-            Data karir Anda saat ini terhubung dengan domain{" "}
-            <span className="text-white font-semibold">{industryName}</span>. AI
-            akan mengoptimasi CV ATS dan saran kata kunci sesuai standar profesi
-            ini.
+          <p className="text-xs md:text-sm text-[#86868B] leading-relaxed">
+            Your career profile is calibrated for{" "}
+            <span className="text-[#1D1D1F] font-semibold">{industryName}</span>. Your resume scoring and AI gap analysis use this benchmark.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-3">
-            <Link
-              href="/cv-builder"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FFEB43] text-neutral-950 text-xs font-bold hover:bg-[#ffe724] transition shadow-sm"
-            >
-              <FileText className="w-4 h-4" />
-              <span>Tailor CV Baru</span>
+          <div className="pt-2 flex flex-wrap gap-2.5">
+            <Link href="/cv-builder">
+              <Button variant="primary" size="md">
+                <FileText className="w-3.5 h-3.5" />
+                <span>Tailor Resume</span>
+              </Button>
             </Link>
-            <Link
-              href="/career-profile"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-semibold border border-neutral-700 transition"
-            >
-              <span>Kelola Portofolio</span>
-              <ArrowRight className="w-3.5 h-3.5 text-neutral-400" />
+            <Link href="/career-profile">
+              <Button variant="secondary" size="md">
+                <span>Manage Profile</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#86868B]" />
+              </Button>
             </Link>
           </div>
         </div>
-
-        {/* Decorative Radial Accent */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial from-neutral-800/40 to-transparent pointer-events-none hidden md:block" />
       </div>
 
-      {/* 2. PROFILE COMPLETENESS & QUICK STATS */}
+      {/* Grid: Readiness & Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* COMPLETENESS PROGRESS CARD */}
-        <div className="lg:col-span-1 bg-white rounded-3xl border border-neutral-200 p-6 shadow-xs flex flex-col justify-between space-y-6">
+        {/* Readiness Card */}
+        <Card className="lg:col-span-1 flex flex-col justify-between space-y-5">
           <div className="space-y-3">
             <div className="flex justify-between items-baseline">
-              <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-[#86868B] uppercase tracking-wider">
                 Profile Readiness
               </span>
-              <span className="text-2xl font-black text-neutral-900">
+              <span className="text-2xl font-bold text-[#1D1D1F]">
                 {completionPercentage}%
               </span>
             </div>
 
-            {/* Progress Bar */}
-            <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-[#F5F5F7] rounded-full overflow-hidden">
               <div
-                className={`h-full transition-all duration-500 rounded-full ${
-                  completionPercentage === 100
-                    ? "bg-emerald-500"
-                    : completionPercentage > 60
-                    ? "bg-[#FFEB43]"
-                    : "bg-neutral-900"
-                }`}
+                className="h-full bg-[#0071E3] transition-all duration-500 rounded-full"
                 style={{ width: `${completionPercentage}%` }}
               />
             </div>
 
-            <p className="text-[11px] text-neutral-500 leading-tight">
+            <p className="text-[11px] text-[#86868B] leading-relaxed">
               {completionPercentage === 100
-                ? "Profil Anda lengkap dan siap menghasilkan CV ATS dengan akurasi optimal!"
-                : "Lengkapi data untuk meningkatkan akurasi tailoring resume berbasis AI."}
+                ? "Profile is complete for maximum ATS match accuracy."
+                : "Fill out missing sections to improve AI tailoring quality."}
             </p>
           </div>
 
-          {/* Checklist Items */}
           <div className="space-y-2 pt-2 border-t border-neutral-100">
             {checklist.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex items-center justify-between text-xs"
-              >
-                <span
-                  className={
-                    item.isDone
-                      ? "text-neutral-700 font-medium"
-                      : "text-neutral-400 line-through"
-                  }
-                >
+              <div key={idx} className="flex items-center justify-between text-xs">
+                <span className={item.isDone ? "text-[#1D1D1F] font-medium" : "text-[#86868B]"}>
                   {item.label}
                 </span>
                 {item.isDone ? (
@@ -176,138 +126,70 @@ export function DashboardView({ user, profile }: DashboardViewProps) {
             ))}
           </div>
 
-          <Link
-            href="/career-profile"
-            className="w-full text-center py-2.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-900 text-xs font-bold transition block"
-          >
-            Lengkapi Profil Sekarang
+          <Link href="/career-profile" className="w-full block">
+            <Button variant="secondary" size="md" className="w-full">
+              Update Profile Data
+            </Button>
           </Link>
-        </div>
+        </Card>
 
-        {/* QUICK STATS METRICS GRID */}
+        {/* Quick Stats Grid */}
         <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700">
-              <Briefcase className="w-4 h-4" />
-            </div>
-            <div className="pt-4">
-              <div className="text-2xl font-black text-neutral-900">
-                {profile?.experiences?.length ?? 0}
+          {[
+            { label: "Experiences", count: profile?.experiences?.length ?? 0, icon: Briefcase },
+            { label: portfolioTitle.split(" ")[0], count: profile?.projects?.length ?? 0, icon: Layers },
+            { label: "Skills", count: profile?.skills?.length ?? 0, icon: Wrench },
+            { label: "Educations", count: profile?.educations?.length ?? 0, icon: GraduationCap },
+            { label: "Achievements", count: profile?.achievements?.length ?? 0, icon: Award },
+            { label: "Status", count: "Active", icon: Sparkles },
+          ].map((stat, i) => (
+            <Card key={i} className="p-5 flex flex-col justify-between">
+              <div className="w-8 h-8 rounded-xl bg-[#F5F5F7] flex items-center justify-center text-[#1D1D1F]">
+                <stat.icon className="w-4 h-4" />
               </div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">
-                Experiences
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700">
-              <Layers className="w-4 h-4" />
-            </div>
-            <div className="pt-4">
-              <div className="text-2xl font-black text-neutral-900">
-                {profile?.projects?.length ?? 0}
+              <div className="pt-4">
+                <div className="text-2xl font-bold text-[#1D1D1F]">{stat.count}</div>
+                <p className="text-xs text-[#86868B] font-medium mt-0.5 truncate">{stat.label}</p>
               </div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5 truncate">
-                {portfolioTitle.split(" ")[0]}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700">
-              <Wrench className="w-4 h-4" />
-            </div>
-            <div className="pt-4">
-              <div className="text-2xl font-black text-neutral-900">
-                {profile?.skills?.length ?? 0}
-              </div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">
-                Skills
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700">
-              <GraduationCap className="w-4 h-4" />
-            </div>
-            <div className="pt-4">
-              <div className="text-2xl font-black text-neutral-900">
-                {profile?.educations?.length ?? 0}
-              </div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">
-                Educations
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700">
-              <Award className="w-4 h-4" />
-            </div>
-            <div className="pt-4">
-              <div className="text-2xl font-black text-neutral-900">
-                {profile?.achievements?.length ?? 0}
-              </div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">
-                Honors & Awards
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-neutral-200 p-5 shadow-xs flex flex-col justify-between">
-            <div className="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-            <div className="pt-4">
-              <div className="text-2xl font-black text-neutral-900">92%</div>
-              <p className="text-xs text-neutral-500 font-medium mt-0.5">
-                Avg. ATS Match
-              </p>
-            </div>
-          </div>
+            </Card>
+          ))}
         </div>
       </div>
 
-      {/* 3. QUICK ACTION TILES */}
+      {/* Feature Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Link
-          href="/cv-builder"
-          className="group bg-white rounded-3xl border border-neutral-200 p-6 shadow-xs hover:border-black transition flex items-center justify-between"
-        >
-          <div className="space-y-1 max-w-sm">
-            <div className="flex items-center gap-2 font-bold text-sm text-neutral-900">
-              <FileText className="w-4 h-4 text-neutral-700" />
-              <span>ATS CV Generator</span>
+        <Link href="/cv-builder" className="group block">
+          <Card className="hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-black/10 transition flex items-center justify-between p-6">
+            <div className="space-y-1 max-w-sm">
+              <div className="flex items-center gap-2 font-semibold text-sm text-[#1D1D1F]">
+                <FileText className="w-4 h-4 text-[#0071E3]" />
+                <span>ATS Resume Studio</span>
+              </div>
+              <p className="text-xs text-[#86868B] leading-relaxed">
+                Match your resume directly to specific job descriptions with AI suggestions.
+              </p>
             </div>
-            <p className="text-xs text-neutral-500">
-              Sesuaikan CV dengan deskripsi pekerjaan target menggunakan AI
-              Tailoring.
-            </p>
-          </div>
-          <div className="w-9 h-9 rounded-2xl bg-neutral-100 group-hover:bg-neutral-950 group-hover:text-white flex items-center justify-center transition shrink-0">
-            <ArrowRight className="w-4 h-4" />
-          </div>
+            <div className="w-8 h-8 rounded-full bg-[#F5F5F7] text-[#1D1D1F] group-hover:bg-[#1D1D1F] group-hover:text-white flex items-center justify-center transition shrink-0">
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </Card>
         </Link>
 
-        <Link
-          href="/ai-insight"
-          className="group bg-white rounded-3xl border border-neutral-200 p-6 shadow-xs hover:border-black transition flex items-center justify-between"
-        >
-          <div className="space-y-1 max-w-sm">
-            <div className="flex items-center gap-2 font-bold text-sm text-neutral-900">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>Career & Skill Gap Insights</span>
+        <Link href="/ai-insight" className="group block">
+          <Card className="hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:border-black/10 transition flex items-center justify-between p-6">
+            <div className="space-y-1 max-w-sm">
+              <div className="flex items-center gap-2 font-semibold text-sm text-[#1D1D1F]">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                <span>Skill Gap & Match Insights</span>
+              </div>
+              <p className="text-xs text-[#86868B] leading-relaxed">
+                Evaluate qualification alignment, missing requirements, and score breakdown.
+              </p>
             </div>
-            <p className="text-xs text-neutral-500">
-              Evaluasi kata kunci yang hilang dan analisis kecocokan profil
-              dengan pasar kerja.
-            </p>
-          </div>
-          <div className="w-9 h-9 rounded-2xl bg-neutral-100 group-hover:bg-neutral-950 group-hover:text-white flex items-center justify-center transition shrink-0">
-            <ArrowRight className="w-4 h-4" />
-          </div>
+            <div className="w-8 h-8 rounded-full bg-[#F5F5F7] text-[#1D1D1F] group-hover:bg-[#1D1D1F] group-hover:text-white flex items-center justify-center transition shrink-0">
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </Card>
         </Link>
       </div>
     </main>

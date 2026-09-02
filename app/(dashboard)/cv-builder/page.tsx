@@ -1,33 +1,47 @@
 import { auth } from "@/auth";
-import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import { CvBuilderClient } from "@/components/cv/cv-builder-client";
 
-export default async function CvBuilderPage() {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function CVBuilderPage() {
   const session = await auth();
-  if (!session?.user?.email) {
+
+  if (!session?.user) {
     redirect("/api/auth/signin");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        ...(session.user.id ? [{ id: session.user.id }] : []),
+        ...(session.user.email ? [{ email: session.user.email }] : []),
+      ],
+    },
     include: {
       profile: {
         include: {
+          user: true,
           experiences: { orderBy: { startDate: "desc" } },
-          projects: { orderBy: { startDate: "desc" } },
           educations: { orderBy: { startDate: "desc" } },
+          projects: { orderBy: [{ startDate: "desc" }, { createdAt: "desc" }] },
           skills: true,
-          certifications: { orderBy: { issueDate: "desc" } },
-          achievements: { orderBy: { date: "desc" } },
+          certifications: true,
+          achievements: true,
         },
       },
     },
   });
 
+  if (!user || !user.profile) {
+    redirect("/career-profile");
+  }
+
   return (
-    <div className="flex-1 flex flex-col">
-      <CvBuilderClient user={user} profile={user?.profile} />
-    </div>
+    <main className="flex-1 flex flex-col w-full h-full">
+      <CvBuilderClient profile={user.profile} user={user} />
+    </main>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Target, Award } from "lucide-react";
 import { SkillGapClient } from "./skill-gap-client";
 import { JobMatchingClient } from "./job-matching-client";
+import { getIndustryConfig } from "@/lib/industry-config";
 
 interface AiInsightViewProps {
   userSkills: string[];

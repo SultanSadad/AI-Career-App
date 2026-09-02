@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import https from "node:https";
+import { getIndustryConfig } from "@/lib/industry-config";
 
 function callGeminiApi(apiKey: string, model: string, payload: any): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -52,15 +53,18 @@ function callGeminiApi(apiKey: string, model: string, payload: any): Promise<any
 
 export async function tailorResumeWithAiAction(jobDescription: string, profileData: any) {
   const session = await auth();
-  if (!session?.user?.email) throw new Error("Unauthorized");
+  if (!session?.user?.email && !session?.user?.id) throw new Error("Unauthorized");
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY is not set in environment variables");
   }
 
-  // 1. Sanitasi payload agar prompt ringkas dan respon cepat
+  // Ambil konteks spesifik major user
+  const majorMeta = getIndustryConfig(profileData?.industry);
+
   const cleanProfile = {
+    major: majorMeta.name,
     headline: profileData?.headline || "",
     bio: profileData?.bio || "",
     experiences: (profileData?.experiences || []).map((e: any) => ({
@@ -76,7 +80,12 @@ export async function tailorResumeWithAiAction(jobDescription: string, profileDa
   };
 
   const prompt = `
-You are an ATS resume optimization expert.
+${majorMeta.systemRolePrompt}
+You are an expert career calibration and ATS optimization system.
+The candidate's core discipline is: "${majorMeta.name}".
+Primary Deliverable Domain: "${majorMeta.projectSectionTitle}".
+Competency Focus: "${majorMeta.skillsSectionTitle}".
+
 Target Job Description:
 """
 ${jobDescription.slice(0, 1500)}
@@ -88,12 +97,12 @@ ${JSON.stringify(cleanProfile)}
 """
 
 Task:
-1. "tailoredHeadline": Targeted professional title.
-2. "tailoredSummary": 3 concise impactful sentences matching the role.
-3. "highlightedSkillIds": Array of IDs of skills matching the JD.
-4. "optimizedExperiences": Array of objects { "id": string, "tailoredDescription": string } with metric-driven bullet points using strong action verbs.
+1. "tailoredHeadline": Produce a targeted, highly professional title reflecting the candidate's background and matching the target position.
+2. "tailoredSummary": Write 3 concise, impactful sentences aligning the candidate's ${majorMeta.name} background directly with the role.
+3. "highlightedSkillIds": Array of IDs of skills from the candidate's list that match the requirements.
+4. "optimizedExperiences": Array of objects { "id": string, "tailoredDescription": string } calibrated with action verbs and quantifiable outcomes suitable for ${majorMeta.name}.
 
-Return ONLY strict valid JSON:
+Return ONLY strict valid JSON matching this schema:
 {
   "tailoredHeadline": "string",
   "tailoredSummary": "string",
@@ -110,13 +119,11 @@ Return ONLY strict valid JSON:
     },
   };
 
-  // Daftar model yang tersedia di API key Anda secara berurutan
-const fallbackModels = [
-  "gemini-flash-lite-latest",
-  "gemini-3.5-flash-lite",
-  "gemini-3.5-flash",
-  "gemini-flash-latest",
-];
+  const fallbackModels = [
+    "gemini-3.6-flash",
+    "gemini-flash-latest",
+    "gemini-flash-lite-latest",
+  ];
 
   let lastError: any = null;
 

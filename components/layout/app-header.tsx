@@ -35,52 +35,21 @@ export function AppHeader({ activeNav, user }: AppHeaderProps) {
 
   return (
     <>
-      <header className="bg-white border-b border-neutral-200 px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-6">
-          {/* Mobile Hamburger Toggle */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 rounded-lg text-neutral-600 hover:bg-neutral-100 md:hidden cursor-pointer"
-            aria-label="Toggle Menu"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#FFEB43] text-black font-black flex items-center justify-center text-xs shadow-xs">
-              CP
-            </div>
-            <span className="font-extrabold text-sm tracking-tight text-neutral-900">
-              Career Passport
-            </span>
-          </Link>
-
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navs.map((n) => {
-              const isActive = activeNav
-                ? activeNav === n.href.replace("/", "")
-                : pathname === n.href;
-              return (
-                <Link
-                  key={n.href}
-                  href={n.href}
-                  className={`text-xs font-bold px-3 py-1.5 rounded-xl transition ${
-                    isActive
-                      ? "bg-neutral-950 text-white"
-                      : "text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100"
-                  }`}
-                >
-                  {n.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* User Profile Menu (Klik avatar membuka popover/modal) */}
-        <UserMenu user={user} />
-      </header>
+      <header className="sticky top-0 z-40 w-full bg-[#F5F5F7]/80 backdrop-blur-md border-b border-black/[0.05]">
+  <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+    <div className="flex items-center gap-6">
+      <span className="font-semibold text-sm tracking-tight text-[#1D1D1F]">
+        Career Passport
+      </span>
+      <nav className="hidden md:flex items-center gap-5 text-xs font-medium text-[#86868B]">
+        <Link href="/dashboard" className="hover:text-[#1D1D1F] transition">Dashboard</Link>
+        <Link href="/career-profile" className="hover:text-[#1D1D1F] transition">Profile Assets</Link>
+        <Link href="/cv-builder" className="hover:text-[#1D1D1F] transition">Resume Studio</Link>
+        <Link href="/ai-insight" className="hover:text-[#1D1D1F] transition">AI Insights</Link>
+      </nav>
+    </div>
+  </div>
+</header>
 
       {/* Mobile Drawer Dropdown */}
       {mobileMenuOpen && (

@@ -277,9 +277,7 @@ export function TemplateClassic({ user, profile, config }: TemplateProps) {
         <h1 className="text-2xl font-black uppercase tracking-wide text-neutral-950">
           {user?.name || "YOUR NAME"}
         </h1>
-        {profile?.headline && (
-          <p className="text-xs font-bold tracking-wide text-neutral-700">{profile.headline}</p>
-        )}
+       
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-0.5 text-[10px] font-medium text-neutral-700 pt-0.5">
           {displayEmail && <span>{displayEmail}</span>}
           {profile?.phone && <span>• {profile.phone}</span>}

@@ -1,53 +1,44 @@
 import * as React from "react";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  hint?: string;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className = "", label, error, ...props }, ref) => {
+  ({ className = "", label, error, hint, id, ...props }, ref) => {
+    const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
+
     return (
-      <div className="w-full space-y-1">
-        {label && <label className="block text-xs font-bold text-neutral-700">{label}</label>}
+      <div className="space-y-1.5 w-full text-left">
+        {label && (
+          <label
+            htmlFor={inputId}
+            className="block text-xs font-medium text-[#86868B] tracking-tight"
+          >
+            {label}
+          </label>
+        )}
         <input
+          id={inputId}
           ref={ref}
-          className={`w-full text-xs p-2.5 rounded-xl border bg-white text-neutral-900 placeholder:text-neutral-400 focus:outline-none transition ${
+          className={`w-full px-4 py-3 text-sm rounded-2xl bg-[#F5F5F7] text-[#1D1D1F] placeholder:text-[#86868B] border border-transparent focus:border-[#0071E3] focus:bg-white focus:outline-none transition-all duration-200 ${
             error
-              ? "border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-500"
-              : "border-neutral-200 focus:border-black"
+              ? "border-rose-400 bg-rose-50/40 focus:border-rose-500"
+              : "hover:bg-[#EBEBEF]"
           } ${className}`}
           {...props}
         />
-        {error && <p className="text-[11px] text-red-600 font-medium">{error}</p>}
+        {hint && !error && (
+          <p className="text-[12px] text-[#86868B] leading-normal">{hint}</p>
+        )}
+        {error && (
+          <p className="text-[12px] text-rose-600 font-medium">{error}</p>
+        )}
       </div>
     );
   }
 );
 Input.displayName = "Input";
-
-export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label?: string;
-  error?: string;
-}
-
-export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className = "", label, error, ...props }, ref) => {
-    return (
-      <div className="w-full space-y-1">
-        {label && <label className="block text-xs font-bold text-neutral-700">{label}</label>}
-        <textarea
-          ref={ref}
-          className={`w-full text-xs p-2.5 rounded-xl border bg-white text-neutral-900 placeholder:text-neutral-400 focus:outline-none transition ${
-            error
-              ? "border-red-500 focus:border-red-600 focus:ring-1 focus:ring-red-500"
-              : "border-neutral-200 focus:border-black"
-          } ${className}`}
-          {...props}
-        />
-        {error && <p className="text-[11px] text-red-600 font-medium">{error}</p>}
-      </div>
-    );
-  }
-);
-Textarea.displayName = "Textarea";

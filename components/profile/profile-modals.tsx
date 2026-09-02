@@ -95,7 +95,7 @@ export function ExperienceModal({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-neutral-700 mb-1">
-                  Position *
+                  Position / Role *
                 </label>
                 <input
                   name="position"
@@ -109,7 +109,7 @@ export function ExperienceModal({
 
               <div>
                 <label className="block text-xs font-bold text-neutral-700 mb-1">
-                  Company *
+                  Company / Organization *
                 </label>
                 <input
                   name="company"
@@ -202,7 +202,7 @@ export function ExperienceModal({
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-neutral-700">
-                  Job Description / Responsibilities
+                  Responsibilities & Impact
                 </label>
                 <button
                   type="button"
@@ -255,19 +255,19 @@ export function ExperienceModal({
 }
 
 /* =========================================================================
-   2. PROJECT / PORTFOLIO MODAL
+   2. PROJECT / CASE / ENGAGEMENT MODAL (MAJOR-ADAPTIVE)
    ========================================================================= */
 export function ProjectModal({
   isOpen,
   onClose,
   initialData,
-  sectionTitle = "Project / Portfolio",
-  titleLabel = "Project Title",
-  titlePlaceholder = "e.g., Career Passport Platform",
-  technologiesLabel = "Technologies / Stack",
-  technologiesPlaceholder = "e.g., Next.js, PostgreSQL, Tailwind",
+  sectionTitle = "Project / Case Study",
+  titleLabel = "Title",
+  titlePlaceholder = "e.g., Enterprise Web Architecture / Statutory Audit",
+  technologiesLabel = "Technologies / Methodologies",
+  technologiesPlaceholder = "e.g., Next.js, PostgreSQL / SAP ERP, IFRS",
   linkPlaceholder = "https://...",
-  descPlaceholder = "Brief overview of what you built...",
+  descPlaceholder = "Key objectives, scope, tools applied, and quantifiable results...",
 }: any) {
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
@@ -388,7 +388,7 @@ export function ProjectModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-neutral-700 mb-1">Live URL</label>
+              <label className="block text-xs font-bold text-neutral-700 mb-1">Live URL / Reference</label>
               <input
                 name="link"
                 value={link}
@@ -403,14 +403,14 @@ export function ProjectModal({
                 name="githubUrl"
                 value={githubUrl}
                 onChange={(e) => setGithubUrl(e.target.value)}
-                placeholder="https://github.com/..."
+                placeholder="https://..."
                 className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Description</label>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Description & Scope</label>
             <textarea
               name="description"
               value={description}
@@ -433,7 +433,7 @@ export function ProjectModal({
               type="submit"
               className="px-4 py-2 rounded-xl text-xs font-bold bg-neutral-950 text-white hover:bg-neutral-800 cursor-pointer"
             >
-              Save Project
+              Save Details
             </button>
           </div>
         </form>
@@ -537,7 +537,7 @@ export function EducationModal({
                 name="degree"
                 value={degree}
                 onChange={(e) => setDegree(e.target.value)}
-                placeholder="e.g., Associate Degree (D3)"
+                placeholder="e.g., Associate Degree (D3) / Bachelor (S1)"
                 className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
               />
             </div>
@@ -578,12 +578,12 @@ export function EducationModal({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-neutral-700 mb-1">Description / Activities</label>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Description / Coursework</label>
             <textarea
               name="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g., Graduated with Honors, GPA, Relevant Coursework..."
+              placeholder="e.g., Graduated with Honors, GPA, Relevant Thesis..."
               rows={3}
               className="w-full text-xs p-3 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             />
@@ -687,7 +687,7 @@ export function CertificationModal({
               name="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., AWS Certified Solutions Architect"
+              placeholder="e.g., AWS Certified Solutions Architect / CFA Level 1 / CPA"
               required
               className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             />
@@ -701,7 +701,7 @@ export function CertificationModal({
               name="issuer"
               value={issuer}
               onChange={(e) => setIssuer(e.target.value)}
-              placeholder="e.g., Amazon Web Services (AWS)"
+              placeholder="e.g., AWS / CFA Institute / IAPI"
               required
               className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black"
             />
@@ -770,8 +770,8 @@ export function AchievementModal({
   isOpen,
   onClose,
   initialData,
-  titlePlaceholder = "e.g., 1st Place National Hackathon",
-  issuerPlaceholder = "e.g., Ministry of ICT",
+  titlePlaceholder = "e.g., 1st Place National Hackathon / Best Oralist Moot Court",
+  issuerPlaceholder = "e.g., Ministry of ICT / International Law Association",
 }: any) {
   const [title, setTitle] = useState(initialData?.title || "");
   const [issuer, setIssuer] = useState(initialData?.issuer || "");
@@ -900,7 +900,7 @@ export function AchievementModal({
 export function SkillModal({
   isOpen,
   onClose,
-  skillPlaceholder = "e.g., TypeScript, Docker, SQL",
+  skillPlaceholder = "e.g., TypeScript, Financial Modeling, Legal Drafting",
 }: any) {
   const [name, setName] = useState("");
   const [level, setLevel] = useState("INTERMEDIATE");

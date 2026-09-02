@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { User, Phone, MapPin, Globe, Code2, FileText, CheckCircle2, Loader2 } from "lucide-react";
+import { User, Phone, MapPin, Globe, Code2, FileText, CheckCircle2, Loader2, GraduationCap } from "lucide-react";
 import { updatePersonalInfoAction } from "@/app/actions/career-profile";
+import { MAJOR_CONFIGS, getIndustryConfig } from "@/lib/industry-config";
 
 interface PersonalInfoCardProps {
   user: {
@@ -11,6 +12,7 @@ interface PersonalInfoCardProps {
     image?: string | null;
   } | null;
   profile: {
+    industry?: string | null;
     phone?: string | null;
     location?: string | null;
     linkedinUrl?: string | null;
@@ -23,7 +25,10 @@ interface PersonalInfoCardProps {
 
 export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
   const [loading, setLoading] = useState(false);
+  const [selectedMajor, setSelectedMajor] = useState(profile?.industry || "it");
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const majorConfig = getIndustryConfig(selectedMajor);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,7 +40,7 @@ export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
 
     setLoading(false);
     if (res.success) {
-      setMessage({ type: "success", text: "Informasi personal berhasil diperbarui!" });
+      setMessage({ type: "success", text: "Data personal & major berhasil diperbarui!" });
       setTimeout(() => setMessage(null), 4000);
     } else {
       setMessage({ type: "error", text: res.error || "Terjadi kesalahan saat menyimpan." });
@@ -61,7 +66,7 @@ export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
           <div>
             <h2 className="text-lg font-black text-neutral-900 leading-snug">Personal Information & Bio</h2>
             <p className="text-xs text-neutral-500">
-              Informasi dasar dan tautan kontak yang akan tercetak otomatis di header CV ATS Anda.
+              Pilih major Anda terlebih dahulu untuk menyesuaikan seluruh istilah proyek, skill, dan analisis karir.
             </p>
           </div>
         </div>
@@ -80,9 +85,32 @@ export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* STEP 1: MAJOR SELECTION (TOP PRIORITY) */}
+        <div className="p-4 rounded-2xl bg-[#0071E3]/5 border border-[#0071E3]/20 space-y-1.5">
+          <label className="block text-xs font-black uppercase tracking-wider text-[#0071E3] flex items-center gap-1.5">
+            <GraduationCap className="w-4 h-4" /> Academic Major / Professional Discipline *
+          </label>
+          <p className="text-[11px] text-neutral-500 leading-relaxed">
+            Menentukan template resume, seksi ({majorConfig.projectSectionTitle}), dan engine evaluasi AI.
+          </p>
+          <select
+            name="industry"
+            value={selectedMajor}
+            onChange={(e) => setSelectedMajor(e.target.value)}
+            className="w-full text-xs font-semibold p-2.5 rounded-xl bg-white border border-neutral-200 focus:outline-none focus:border-[#0071E3] transition mt-1 cursor-pointer"
+            required
+          >
+            {Object.values(MAJOR_CONFIGS).map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* STEP 2: PROFILE DETAILS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {/* Full Name */}
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1 flex items-center gap-1.5">
               <User className="w-3.5 h-3.5 text-neutral-500" /> Full Name *
@@ -96,7 +124,6 @@ export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
             />
           </div>
 
-          {/* Email (Readonly info) */}
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1">Email (Primary)</label>
             <input
@@ -106,7 +133,16 @@ export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
             />
           </div>
 
-          {/* Phone */}
+          <div>
+            <label className="block text-xs font-bold text-neutral-700 mb-1">Professional Title / Headline</label>
+            <input
+              name="headline"
+              defaultValue={profile?.headline ?? ""}
+              className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 bg-neutral-50/40 focus:bg-white focus:outline-none focus:border-black transition"
+              placeholder={majorConfig.headlinePlaceholder}
+            />
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1 flex items-center gap-1.5">
               <Phone className="w-3.5 h-3.5 text-neutral-500" /> Phone Number
@@ -119,7 +155,6 @@ export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
             />
           </div>
 
-          {/* Location */}
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1 flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-neutral-500" /> Location (City, Country)
@@ -132,7 +167,6 @@ export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
             />
           </div>
 
-          {/* LinkedIn URL */}
           <div>
             <label className="block text-xs font-bold text-neutral-700 mb-1 flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-neutral-700" /> LinkedIn Profile
@@ -145,21 +179,19 @@ export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
             />
           </div>
 
-          {/* GitHub or Portfolio URL */}
-          <div>
+          <div className="sm:col-span-2 md:col-span-3">
             <label className="block text-xs font-bold text-neutral-700 mb-1 flex items-center gap-1.5">
-              <Code2 className="w-3.5 h-3.5 text-neutral-700" /> GitHub / Portfolio Link
+              <Code2 className="w-3.5 h-3.5 text-neutral-700" /> Portfolio / Reference / Repository Link
             </label>
             <input
               name="githubUrl"
               defaultValue={profile?.githubUrl ?? ""}
               className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 bg-neutral-50/40 focus:bg-white focus:outline-none focus:border-black transition"
-              placeholder="https://github.com/username"
+              placeholder="https://github.com/... or https://behance.net/..."
             />
           </div>
         </div>
 
-        {/* Professional Summary / Bio */}
         <div>
           <label className="block text-xs font-bold text-neutral-700 mb-1 flex items-center gap-1.5">
             <FileText className="w-3.5 h-3.5 text-neutral-500" /> Professional Summary (Bio)
@@ -169,7 +201,7 @@ export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
             defaultValue={profile?.bio ?? ""}
             rows={3}
             className="w-full text-xs p-3 rounded-xl border border-neutral-200 bg-neutral-50/40 focus:bg-white focus:outline-none focus:border-black transition"
-            placeholder="Ringkasan profil profesional singkat yang menyoroti pengalaman, keahlian utama, dan nilai yang Anda bawa..."
+            placeholder="Ringkasan profil profesional yang selaras dengan major Anda..."
           />
         </div>
 
@@ -180,7 +212,7 @@ export function PersonalInfoCard({ user, profile }: PersonalInfoCardProps) {
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-neutral-950 text-white hover:bg-neutral-800 rounded-xl text-xs font-bold transition disabled:opacity-50 cursor-pointer"
           >
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-            <span>{loading ? "Menyimpan Data..." : "Simpan Perubahan Personal"}</span>
+            <span>{loading ? "Menyimpan Data..." : "Simpan Pengaturan Major & Profil"}</span>
           </button>
         </div>
       </form>

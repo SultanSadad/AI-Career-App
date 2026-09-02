@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { AtsResumePreview, ResumeConfig } from "./ats-resume-preview";
 import { TemplateId } from "./resume-templates";
 import {
-  Eye,
   Download,
   ArrowUp,
   ArrowDown,
@@ -24,6 +23,8 @@ import {
   Columns2,
   MapPin,
   Mail,
+  Sliders,
+  Sparkle,
 } from "lucide-react";
 import { tailorResumeWithAiAction } from "@/app/actions/tailor-resume";
 import { getIndustryConfig } from "@/lib/industry-config";
@@ -41,17 +42,18 @@ export function CvBuilderClient({ user, profile }: CvBuilderClientProps) {
   const industryConfig = getIndustryConfig(profile?.industry);
 
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>("classic");
+  const [activeControlTab, setActiveControlTab] = useState<"customize" | "sections">("customize");
   const [jobDescription, setJobDescription] = useState("");
   const [isTailoring, setIsTailoring] = useState(false);
   const [isAiApplied, setIsAiApplied] = useState(false);
 
-  // Dynamic Scale Preview agar lembaran A4 selalu pas dengan lebar kolom kanan browser
+  // Dynamic Scale Preview agar lembar A4 selalu pas dengan viewport
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.clientWidth - 48;
         const a4WidthPx = 794; // 210mm pada 96 DPI
-        const calculatedScale = Math.min(1, Math.max(0.4, containerWidth / a4WidthPx));
+        const calculatedScale = Math.min(1, Math.max(0.45, containerWidth / a4WidthPx));
         setScale(calculatedScale);
       }
     };
@@ -69,25 +71,25 @@ export function CvBuilderClient({ user, profile }: CvBuilderClientProps) {
 
   const [config, setConfig] = useState<ResumeConfig>({
     sectionOrder: [
-      "achievements",
       "summary",
       "experience",
       "projects",
       "education",
       "skills",
       "certifications",
+      "achievements",
     ],
     enabledSections: {
-      achievements: true,
       summary: true,
       experience: true,
       projects: true,
       education: true,
       skills: true,
       certifications: true,
+      achievements: true,
     },
     showLocation: true,
-    customEmail: user?.email || "",
+    customEmail: profile?.contactEmail || user?.email || "",
     selectedExperiences: (profile?.experiences || []).map((e: any) => e.id),
     selectedProjects: (profile?.projects || []).map((p: any) => p.id),
     selectedEducations: (profile?.educations || []).map((e: any) => e.id),
@@ -98,7 +100,7 @@ export function CvBuilderClient({ user, profile }: CvBuilderClientProps) {
 
   const templates: Array<{ id: TemplateId; label: string; desc: string; icon: any }> = [
     { id: "classic", label: "Classic ATS", desc: "Single-column A4", icon: FileText },
-    { id: "modern", label: "Modern Minimal", desc: "Clean sans timeline", icon: LayoutTemplate },
+    { id: "modern", label: "Modern Minimal", desc: "Clean timeline", icon: LayoutTemplate },
     { id: "executive", label: "Executive Two-Col", desc: "Structured sidebar", icon: Columns2 },
   ];
 
@@ -207,15 +209,15 @@ export function CvBuilderClient({ user, profile }: CvBuilderClientProps) {
       case "achievements":
         return { label: "Achievements", icon: Award };
       case "summary":
-        return { label: "Summary", icon: Eye };
+        return { label: "Executive Summary", icon: FileText };
       case "experience":
-        return { label: "Experience", icon: Briefcase };
+        return { label: "Work Experience", icon: Briefcase };
       case "projects":
         return { label: industryConfig.projectSectionTitle, icon: Layers };
       case "education":
         return { label: "Education", icon: GraduationCap };
       case "skills":
-        return { label: "Skills", icon: Wrench };
+        return { label: "Key Competencies", icon: Wrench };
       case "certifications":
         return { label: "Certifications", icon: ShieldCheck };
       default:
@@ -224,290 +226,370 @@ export function CvBuilderClient({ user, profile }: CvBuilderClientProps) {
   };
 
   return (
-    <div className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 space-y-6">
-      {/* HEADER & ACTIONS */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-200 pb-5 no-print">
-        <div>
+    <>
+      {/* CSS KHUSUS PRINT A4 */}
+      <style jsx global>{`
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 0;
+          }
+          body {
+            background: #ffffff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+          #resume-preview-container {
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            max-height: none !important;
+            overflow: visible !important;
+            background: transparent !important;
+          }
+          #resume-printable-area {
+            transform: none !important;
+            width: 100% !important;
+            margin: 0 !important;
+          }
+        }
+      `}</style>
+
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 space-y-6 text-left font-['Canva_Sans',-apple-system,sans-serif]">
+        {/* TOP HEADER */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-black/[0.06] no-print">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl font-bold tracking-tight text-[#1D1D1F]">
+                Resume Studio
+              </h1>
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#E8E8ED] text-[#1D1D1F]">
+                {industryConfig.name}
+              </span>
+            </div>
+            <p className="text-xs text-[#86868B] mt-1">
+              Standar format A4 presisi, kompatibel dengan parser ATS industri.
+            </p>
+          </div>
+
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black text-neutral-900">ATS Resume Builder & AI Tailor</h1>
-            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-neutral-100 border border-neutral-200 text-neutral-700">
-              {industryConfig.name}
-            </span>
-          </div>
-          <p className="text-xs text-neutral-500 mt-1">
-            Standar dokumen A4 presisi, margin 3/4 inchi, dan pemotongan halaman otomatis.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {isAiApplied && (
-            <button
-              onClick={handleResetAi}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-neutral-300 text-neutral-700 font-bold text-xs hover:bg-neutral-100 transition cursor-pointer"
-            >
-              <Undo2 className="w-3.5 h-3.5" />
-              <span>Reset AI</span>
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={handleDownloadPdf}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-950 text-white font-bold text-xs hover:bg-neutral-800 transition cursor-pointer shadow-xs"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Download PDF</span>
-          </button>
-        </div>
-      </div>
-
-      {/* SPLIT SCREEN */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* LEFT COLUMN: CONTROLS (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6 no-print">
-          {/* EDITABLE EMAIL */}
-          <div className="bg-white p-5 rounded-3xl border border-neutral-200 shadow-xs space-y-3">
-            <div className="flex items-center gap-2 font-bold text-xs text-neutral-900">
-              <Mail className="w-4 h-4 text-neutral-700" />
-              <span>Resume Contact Information</span>
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-neutral-600 mb-1">
-                Display Email on CV (Editable)
-              </label>
-              <input
-                type="email"
-                value={config.customEmail ?? ""}
-                onChange={(e) => setConfig((prev) => ({ ...prev, customEmail: e.target.value }))}
-                placeholder="nama@email.com"
-                className="w-full text-xs p-2.5 rounded-xl border border-neutral-200 focus:outline-none focus:border-black bg-neutral-50 font-sans"
-              />
-            </div>
-          </div>
-
-          {/* AI TAILORING BOX */}
-          <div className="bg-white p-5 rounded-3xl border-2 border-neutral-900 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 font-bold text-xs text-neutral-900">
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span>AI Job Tailor Engine</span>
-              </div>
-              {isAiApplied && (
-                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
-                  ✓ Tailored
-                </span>
-              )}
-            </div>
-
-            <textarea
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-              rows={4}
-              placeholder="Paste Job Description target di sini..."
-              className="w-full text-xs p-3 rounded-2xl border border-neutral-200 focus:outline-none focus:border-black bg-neutral-50 resize-none font-sans"
-            />
+            {isAiApplied && (
+              <button
+                onClick={handleResetAi}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-black/[0.1] text-xs font-semibold text-[#1D1D1F] hover:bg-neutral-100 transition cursor-pointer"
+              >
+                <Undo2 className="w-3.5 h-3.5 text-[#86868B]" />
+                <span>Reset AI</span>
+              </button>
+            )}
 
             <button
-              onClick={handleRunAiTailor}
-              disabled={isTailoring || !jobDescription.trim()}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#FFEB43] text-black font-extrabold text-xs hover:bg-yellow-400 disabled:opacity-50 transition flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+              type="button"
+              onClick={handleDownloadPdf}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0071E3] hover:bg-[#0077ED] text-white text-xs font-semibold shadow-xs transition cursor-pointer"
             >
-              {isTailoring ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Mengoptimasi dengan AI...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Tailor My Resume for this Job</span>
-                </>
-              )}
+              <Download className="w-3.5 h-3.5" />
+              <span>Export PDF</span>
             </button>
           </div>
+        </div>
 
-          {/* SECTION CONTROLS */}
-          <div className="bg-white p-6 rounded-3xl border border-neutral-200 shadow-xs space-y-6">
-            <div>
-              <h3 className="text-xs font-bold text-neutral-900">Section Order & Visibility</h3>
-              <p className="text-[11px] text-neutral-500">Centang untuk aktifkan, klik panah untuk atur urutan posisi.</p>
+        {/* WORKSPACE GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* LEFT COLUMN: TOOLS & CONTROLS */}
+          <div className="lg:col-span-5 space-y-4 no-print">
+            {/* SUB-TAB NAVIGATOR */}
+            <div className="flex items-center gap-1 p-1 bg-[#E8E8ED] rounded-full w-fit">
+              <button
+                type="button"
+                onClick={() => setActiveControlTab("customize")}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition cursor-pointer ${
+                  activeControlTab === "customize"
+                    ? "bg-white text-[#1D1D1F] font-semibold shadow-xs"
+                    : "text-[#86868B] hover:text-[#1D1D1F]"
+                }`}
+              >
+                <Sparkle className="w-3.5 h-3.5" />
+                <span>Tailor & Style</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveControlTab("sections")}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition cursor-pointer ${
+                  activeControlTab === "sections"
+                    ? "bg-white text-[#1D1D1F] font-semibold shadow-xs"
+                    : "text-[#86868B] hover:text-[#1D1D1F]"
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Sections & Visibility</span>
+              </button>
             </div>
 
-            {/* TOGGLE LOCATION */}
-            <div
-              onClick={() => setConfig((prev) => ({ ...prev, showLocation: !prev.showLocation }))}
-              className="flex items-center justify-between p-2.5 rounded-xl border border-neutral-200 bg-neutral-50 hover:bg-neutral-100 cursor-pointer transition"
-            >
-              <div className="flex items-center gap-2 text-xs font-bold text-neutral-800">
-                {config.showLocation ? (
-                  <CheckSquare className="w-4 h-4 text-black" />
-                ) : (
-                  <Square className="w-4 h-4 text-neutral-400" />
-                )}
-                <MapPin className="w-3.5 h-3.5 text-neutral-500" />
-                <span>Show Location in Header</span>
-              </div>
-            </div>
+            {/* TAB 1: AI TAILOR & STYLE */}
+            {activeControlTab === "customize" && (
+              <div className="space-y-4">
+                {/* AI TAILOR PANEL */}
+                <div className="bg-[#F5F5F7] p-5 rounded-2xl border border-black/[0.04] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[#0071E3]" />
+                      <span className="text-xs font-bold text-[#1D1D1F]">
+                        AI Job Tailor Engine
+                      </span>
+                    </div>
+                    {isAiApplied && (
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[10px]">
+                        ✓ Optimized
+                      </span>
+                    )}
+                  </div>
 
-            {/* SECTIONS ORDER LIST */}
-            <div className="space-y-2">
-              {config.sectionOrder.map((sec, index) => {
-                const { label, icon: Icon } = getSectionLabel(sec);
-                const isEnabled = config.enabledSections[sec];
+                  <p className="text-[11px] text-[#86868B] leading-relaxed">
+                    Tempel kualifikasi lowongan kerja untuk menyelaraskan kata kunci, ringkasan, dan pencapaian pengalaman kerja.
+                  </p>
 
-                return (
+                  <textarea
+                    value={jobDescription}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    rows={4}
+                    placeholder="Tempel Job Description target di sini..."
+                    className="w-full text-xs p-3 rounded-xl bg-white border border-black/[0.08] focus:border-[#0071E3] focus:outline-none resize-none transition"
+                  />
+
+                  <button
+                    onClick={handleRunAiTailor}
+                    disabled={isTailoring || !jobDescription.trim()}
+                    className="w-full py-2.5 px-4 rounded-xl bg-[#0071E3] hover:bg-[#0077ED] text-white font-semibold text-xs disabled:opacity-40 transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                  >
+                    {isTailoring ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Menyesuaikan dengan AI...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Tailor Resume for this Role</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* CONTACT HEADER ADJUSTMENT */}
+                <div className="bg-white p-5 rounded-2xl border border-black/[0.06] space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#1D1D1F]">
+                    <Mail className="w-3.5 h-3.5 text-[#86868B]" />
+                    <span>Contact Info Override</span>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-[#86868B] mb-1">
+                      Display Email on CV
+                    </label>
+                    <input
+                      type="email"
+                      value={config.customEmail ?? ""}
+                      onChange={(e) => setConfig((prev) => ({ ...prev, customEmail: e.target.value }))}
+                      placeholder="nama@email.com"
+                      className="w-full text-xs p-2.5 rounded-xl bg-[#F5F5F7] border border-transparent focus:border-[#0071E3] focus:bg-white focus:outline-none transition"
+                    />
+                  </div>
+
                   <div
-                    key={sec}
-                    className={`flex items-center justify-between p-2.5 rounded-xl border transition ${
-                      isEnabled ? "bg-neutral-50 border-neutral-200" : "bg-neutral-100/50 border-neutral-200/50 opacity-50"
+                    onClick={() => setConfig((prev) => ({ ...prev, showLocation: !prev.showLocation }))}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-[#F5F5F7] hover:bg-[#EBEBEF] cursor-pointer transition"
+                  >
+                    <div className="flex items-center gap-2 text-xs font-semibold text-[#1D1D1F]">
+                      <MapPin className="w-3.5 h-3.5 text-[#86868B]" />
+                      <span>Show Location in Header</span>
+                    </div>
+                    {config.showLocation ? (
+                      <CheckSquare className="w-4 h-4 text-[#0071E3]" />
+                    ) : (
+                      <Square className="w-4 h-4 text-[#86868B]" />
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: SECTIONS REORDER & FILTER */}
+            {activeControlTab === "sections" && (
+              <div className="bg-white p-5 rounded-2xl border border-black/[0.06] space-y-5">
+                <div>
+                  <h3 className="text-xs font-bold text-[#1D1D1F]">Section Arrangement</h3>
+                  <p className="text-[11px] text-[#86868B] mt-0.5">
+                    Aktifkan dan atur prioritas penataan seksi pada resume.
+                  </p>
+                </div>
+
+                {/* SECTION LIST */}
+                <div className="space-y-1.5">
+                  {config.sectionOrder.map((sec, index) => {
+                    const { label, icon: Icon } = getSectionLabel(sec);
+                    const isEnabled = config.enabledSections[sec];
+
+                    return (
+                      <div
+                        key={sec}
+                        className={`flex items-center justify-between p-2.5 rounded-xl transition ${
+                          isEnabled
+                            ? "bg-[#F5F5F7] border border-black/[0.04]"
+                            : "bg-neutral-50/60 opacity-40 border border-transparent"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => toggleSection(sec)}
+                          className="flex items-center gap-2 text-xs font-semibold text-[#1D1D1F] cursor-pointer"
+                        >
+                          {isEnabled ? (
+                            <CheckSquare className="w-3.5 h-3.5 text-[#0071E3]" />
+                          ) : (
+                            <Square className="w-3.5 h-3.5 text-[#86868B]" />
+                          )}
+                          <Icon className="w-3.5 h-3.5 text-[#86868B]" />
+                          <span>{label}</span>
+                        </button>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            disabled={index === 0}
+                            onClick={() => moveSection(index, "up")}
+                            className="p-1 rounded-md text-[#86868B] hover:text-[#1D1D1F] hover:bg-neutral-200 disabled:opacity-20 cursor-pointer"
+                          >
+                            <ArrowUp className="w-3 h-3" />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={index === config.sectionOrder.length - 1}
+                            onClick={() => moveSection(index, "down")}
+                            className="p-1 rounded-md text-[#86868B] hover:text-[#1D1D1F] hover:bg-neutral-200 disabled:opacity-20 cursor-pointer"
+                          >
+                            <ArrowDown className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <hr className="border-black/[0.06]" />
+
+                {/* ITEM SELECTION: EXPERIENCE */}
+                <div className="space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#86868B]">
+                    Included Experiences ({config.selectedExperiences.length})
+                  </span>
+                  <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                    {(profile?.experiences || []).map((exp: any) => {
+                      const checked = config.selectedExperiences.includes(exp.id);
+                      return (
+                        <div
+                          key={exp.id}
+                          onClick={() => toggleItemSelection("selectedExperiences", exp.id)}
+                          className="flex items-center gap-2 text-xs p-2 rounded-xl bg-[#F5F5F7] hover:bg-[#EBEBEF] cursor-pointer"
+                        >
+                          {checked ? (
+                            <CheckSquare className="w-3.5 h-3.5 text-[#0071E3] shrink-0" />
+                          ) : (
+                            <Square className="w-3.5 h-3.5 text-[#86868B] shrink-0" />
+                          )}
+                          <span className="truncate text-[11px] font-medium text-[#1D1D1F]">
+                            {exp.position} • {exp.company}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ITEM SELECTION: SKILLS */}
+                <div className="space-y-2">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#86868B]">
+                    Included Skills ({config.selectedSkills.length})
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
+                    {(profile?.skills || []).map((s: any) => {
+                      const checked = config.selectedSkills.includes(s.id);
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => toggleItemSelection("selectedSkills", s.id)}
+                          className={`text-[11px] px-2.5 py-1 rounded-full border transition cursor-pointer ${
+                            checked
+                              ? "bg-[#1D1D1F] text-white border-[#1D1D1F] font-semibold"
+                              : "bg-[#F5F5F7] text-[#86868B] border-transparent"
+                          }`}
+                        >
+                          {s.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT COLUMN: REALTIME A4 STUDIO */}
+          <div className="lg:col-span-7 space-y-4">
+            {/* TEMPLATE PICKER PILL */}
+            <div className="bg-[#E8E8ED] p-1 rounded-full flex items-center gap-1 w-fit no-print">
+              {templates.map((tpl) => {
+                const Icon = tpl.icon;
+                const isSelected = selectedTemplate === tpl.id;
+                return (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => setSelectedTemplate(tpl.id)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition flex items-center gap-2 cursor-pointer ${
+                      isSelected
+                        ? "bg-white text-[#1D1D1F] shadow-xs"
+                        : "text-[#86868B] hover:text-[#1D1D1F]"
                     }`}
                   >
-                    <button
-                      onClick={() => toggleSection(sec)}
-                      className="flex items-center gap-2 text-xs font-bold text-neutral-800 cursor-pointer"
-                    >
-                      {isEnabled ? <CheckSquare className="w-4 h-4 text-black" /> : <Square className="w-4 h-4 text-neutral-400" />}
-                      <Icon className="w-3.5 h-3.5 text-neutral-500" />
-                      <span>{label}</span>
-                    </button>
-
-                    <div className="flex items-center gap-1">
-                      <button
-                        disabled={index === 0}
-                        onClick={() => moveSection(index, "up")}
-                        className="p-1 rounded text-neutral-500 hover:text-black hover:bg-neutral-200 disabled:opacity-30 cursor-pointer"
-                      >
-                        <ArrowUp className="w-3 h-3" />
-                      </button>
-                      <button
-                        disabled={index === config.sectionOrder.length - 1}
-                        onClick={() => moveSection(index, "down")}
-                        className="p-1 rounded text-neutral-500 hover:text-black hover:bg-neutral-200 disabled:opacity-30 cursor-pointer"
-                      >
-                        <ArrowDown className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{tpl.label}</span>
+                  </button>
                 );
               })}
             </div>
 
-            <hr className="border-neutral-100" />
-
-            {/* ITEM SELECTORS */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-neutral-900">Include Experiences ({config.selectedExperiences.length})</h4>
-              <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
-                {(profile?.experiences || []).map((exp: any) => {
-                  const checked = config.selectedExperiences.includes(exp.id);
-                  return (
-                    <div
-                      key={exp.id}
-                      onClick={() => toggleItemSelection("selectedExperiences", exp.id)}
-                      className="flex items-center gap-2 text-xs p-2 rounded-xl border border-neutral-100 bg-neutral-50 hover:bg-neutral-100 cursor-pointer"
-                    >
-                      {checked ? <CheckSquare className="w-3.5 h-3.5 text-black shrink-0" /> : <Square className="w-3.5 h-3.5 text-neutral-400 shrink-0" />}
-                      <span className="truncate font-medium">{exp.position} - {exp.company}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-neutral-900">
-                Include {industryConfig.projectSectionTitle} ({config.selectedProjects.length})
-              </h4>
-              <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
-                {(profile?.projects || []).map((proj: any) => {
-                  const checked = config.selectedProjects.includes(proj.id);
-                  return (
-                    <div
-                      key={proj.id}
-                      onClick={() => toggleItemSelection("selectedProjects", proj.id)}
-                      className="flex items-center gap-2 text-xs p-2 rounded-xl border border-neutral-100 bg-neutral-50 hover:bg-neutral-100 cursor-pointer"
-                    >
-                      {checked ? <CheckSquare className="w-3.5 h-3.5 text-black shrink-0" /> : <Square className="w-3.5 h-3.5 text-neutral-400 shrink-0" />}
-                      <span className="truncate font-medium">{proj.title}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-neutral-900">Include Skills ({config.selectedSkills.length})</h4>
-              <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto">
-                {(profile?.skills || []).map((s: any) => {
-                  const checked = config.selectedSkills.includes(s.id);
-                  return (
-                    <button
-                      key={s.id}
-                      onClick={() => toggleItemSelection("selectedSkills", s.id)}
-                      className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition cursor-pointer ${
-                        checked ? "bg-black text-white border-black" : "bg-neutral-100 text-neutral-700 border-neutral-200"
-                      }`}
-                    >
-                      {s.name}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT COLUMN: PREVIEW CONTAINER (7 Cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="bg-white p-2 rounded-2xl border border-neutral-200 shadow-2xs flex items-center gap-1.5 no-print">
-            {templates.map((tpl) => {
-              const Icon = tpl.icon;
-              const isSelected = selectedTemplate === tpl.id;
-              return (
-                <button
-                  key={tpl.id}
-                  onClick={() => setSelectedTemplate(tpl.id)}
-                  className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
-                    isSelected
-                      ? "bg-neutral-950 text-white shadow-xs"
-                      : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100"
-                  }`}
-                >
-                  <Icon className={`w-3.5 h-3.5 ${isSelected ? "text-[#FFEB43]" : "text-neutral-500"}`} />
-                  <span>{tpl.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* VIEWPORT SCALED PREVIEW (FIT TO SCREEN, IDENTIK DENGAN PDF) */}
-          {/* VIEWPORT PREVIEW */}
-          {/* VIEWPORT SCALED PREVIEW */}
-          {/* PREVIEW CONTAINER */}
-          {/* VIEWPORT PREVIEW (PURE WHITE BACKGROUND) */}
-          <div
-            ref={containerRef}
-            id="resume-preview-container"
-            className="bg-white p-4 md:p-8 rounded-2xl border border-neutral-200 overflow-y-auto max-h-[85vh] flex justify-center items-start shadow-sm print:p-0 print:m-0 print:border-none print:bg-white print:max-h-none print:overflow-visible print:shadow-none"
-          >
+            {/* PREVIEW CONTAINER */}
             <div
-              id="resume-printable-area"
-              style={{
-                transform: `scale(${scale})`,
-                transformOrigin: "top center",
-                width: "210mm",
-              }}
-              className="transition-transform duration-200 ease-out flex flex-col items-center bg-white print:transform-none print:w-full print:m-0 print:bg-white"
+              ref={containerRef}
+              id="resume-preview-container"
+              className="bg-[#F5F5F7] p-4 md:p-8 rounded-2xl border border-black/[0.04] overflow-y-auto max-h-[82vh] flex justify-center items-start shadow-inner"
             >
-              <AtsResumePreview
-                ref={resumeRef}
-                user={user}
-                profile={effectiveProfile}
-                config={config}
-                templateId={selectedTemplate}
-              />
+              <div
+                id="resume-printable-area"
+                style={{
+                  transform: `scale(${scale})`,
+                  transformOrigin: "top center",
+                  width: "210mm",
+                }}
+                className="transition-transform duration-150 ease-out flex flex-col items-center bg-white shadow-xl rounded-sm"
+              >
+                <AtsResumePreview
+                  ref={resumeRef}
+                  user={user}
+                  profile={effectiveProfile}
+                  config={config}
+                  templateId={selectedTemplate}
+                />
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }

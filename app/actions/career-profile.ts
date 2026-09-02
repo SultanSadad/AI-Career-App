@@ -4,6 +4,15 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
+import { 
+  updateGeneralInfoAction, 
+  addProjectAction, 
+  deleteProjectAction, 
+  addSkillAction, 
+  deleteSkillAction,
+  deleteExperienceAction
+} from "@/app/actions/profile";
+
 // 1. SAVE EXPERIENCE
 export async function saveExperienceAction(formData: FormData) {
   const session = await auth();

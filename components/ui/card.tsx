@@ -1,33 +1,43 @@
 import * as React from "react";
 
-export function Card({ className = "", children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function Card({
+  className = "",
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`bg-white rounded-3xl border border-neutral-200 p-6 shadow-xs ${className}`} {...props}>
+    <div
+      className={`bg-white rounded-[24px] border border-black/[0.04] p-6 md:p-8 shadow-[0_4px_24px_rgba(0,0,0,0.04)] transition-all duration-300 ${className}`}
+      {...props}
+    >
       {children}
     </div>
   );
 }
 
-export function CardHeader({ className = "", children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function CardHeader({
+  className = "",
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`flex items-center justify-between gap-2 pb-4 ${className}`} {...props}>
+    <div className={`space-y-1 pb-5 ${className}`} {...props}>
       {children}
     </div>
   );
 }
 
-export function CardTitle({ className = "", children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+export function CardTitle({
+  className = "",
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={`font-black text-sm text-neutral-900 flex items-center gap-2 ${className}`} {...props}>
+    <h3
+      className={`text-lg font-semibold text-[#1D1D1F] tracking-tight ${className}`}
+      {...props}
+    >
       {children}
     </h3>
-  );
-}
-
-export function CardContent({ className = "", children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div className={`space-y-3 ${className}`} {...props}>
-      {children}
-    </div>
   );
 }
